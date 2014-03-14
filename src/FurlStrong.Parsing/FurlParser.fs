@@ -28,16 +28,37 @@ let private ws_str_ws s = ws >>. str s .>> ws
 
 let private between_ch copen p cclose = between (ch copen) (ch cclose) p
 
+let resultSatisfies predicate msg (p: Parser<_,_>) : Parser<_,_> =
+    let error = messageError msg
+    fun stream ->
+      let state = stream.State
+      let reply = p stream
+      if reply.Status <> Ok || predicate reply.Result then reply
+      else
+          stream.BacktrackTo(state) // backtrack to beginning
+          Reply(Error, error)
+
+let parseIf (p1:Parser<_,_>) msg (p2:Parser<_,_>) : Parser<_,_> = 
+    let error = messageError msg
+    fun stream ->
+        let state = stream.State
+        let reply = p1 stream
+        stream.BacktrackTo(state) // backtrack to beginning
+        if reply.Status = Ok then
+            p2 stream
+        else
+            Reply(Error, error)
+
 //let private anything_until c = manySatisfy ((<>) c) .>> ch c
 let private anything_until c a = manySatisfy ((<>) c) .>> ch c |>> a
 let private max_int = Int32.MaxValue
 
-let private pscheme = opt (manyChars letter .>> str "://" |>> Scheme )
+let private pscheme = opt (manyChars letter .>> str "://" |>> Scheme ) <!> "scheme"
 //let private pcredentials = opt (anything_until ':' .>>. anything_until '@' |>> (fun(u,p) -> new Credentials(new Username(u),new Password(p))
-let private pcredentials = opt (anything_until ':' Username .>>. anything_until '@' Password |>> Credentials)
-let private phost = opt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) 
-let private pport = opt (ch ':' >>. pint32 |>> Port)
-let private purl = tuple4 pscheme pcredentials phost pport |>> Url
+let private pcredentials = opt (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials)
+let private phost = opt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
+let private pport = attempt (opt (ch ':' >>. pint32 |>> Port)) <!> "port"
+let private purl = tuple4 pscheme pcredentials phost pport |>> Url <!> "url"
 
 let private parser = purl .>> eof
 

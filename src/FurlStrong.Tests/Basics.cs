@@ -38,5 +38,26 @@ namespace Furlstrong.Tests
             Assert.AreEqual("www.google.com", f.Host);
             Assert.AreEqual(90, f.Port);
         }
+
+        /// <summary>
+        /// furl infers the default port for common schemes.
+        /// >>> f = furl('https://secure.google.com/')
+        // >>> f.port
+        // 443
+        // 
+        // >>> f = furl('unknown://www.google.com/')
+        // >>> print f.port
+        // None
+        /// </summary>
+        [TestCase("http://www.google.com", 80)]
+        [TestCase("https://secure.google.com", 443)]
+        [TestCase("unknown://secure.google.com", null)]
+        [Theory]
+        public void Furl_infers_the_default_port_for_common_schemes(string url, int? expectedPort)
+        {
+            var f = Furl.Parse(url);
+
+            Assert.AreEqual(expectedPort, f.Port);
+        }
     }
 }
