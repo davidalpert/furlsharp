@@ -58,7 +58,12 @@ let private pscheme = opt (manyChars letter .>> str "://" |>> Scheme ) <!> "sche
 let private pcredentials = opt (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials)
 let private phost = opt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
 let private pport = attempt (opt (ch ':' >>. pint32 |>> Port)) <!> "port"
-let private purl = tuple4 pscheme pcredentials phost pport |>> Url <!> "url"
+
+// paths
+let private ppathPart = ch '/' >>. manySatisfy((<>) '/')
+let private ppath = many1 ppathPart |>> Path <!> "path"
+
+let private purl = tuple5 pscheme pcredentials phost pport (opt ppath) |>> Url <!> "url"
 
 let private parser = purl .>> eof
 

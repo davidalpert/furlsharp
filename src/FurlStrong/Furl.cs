@@ -3,6 +3,21 @@ using System.Text;
 
 namespace Furlstrong
 {
+    public class FurlPath
+    {
+        public FurlPath(IEnumerable<string> pathParts)
+        {
+            Segments = new List<string>(pathParts);
+        }
+
+        public List<string> Segments { get; private set; }
+
+        public override string ToString()
+        {
+            return "/" + string.Join("/", Segments);
+        }
+    }
+
     public class Furl
     {
         public static Furl Parse(string url)
@@ -26,6 +41,11 @@ namespace Furlstrong
             f.Port = port != null 
                 ? port.Value.Item 
                 : GetDefaultPortFor(f.Scheme);
+
+            var path = result.Item5;
+            f.Path = path != null
+                         ? new FurlPath(path.Value.Item)
+                         : null;
 
             return f;
         }
@@ -63,6 +83,8 @@ namespace Furlstrong
                 return sb.ToString();
             }
         }
+
+        public FurlPath Path { get; set; }
     }
 
     public static class StringExtensions

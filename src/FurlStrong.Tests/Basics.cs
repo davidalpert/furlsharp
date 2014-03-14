@@ -1,5 +1,8 @@
 ﻿using NUnit.Framework;
 
+/// <summary>
+/// A port of the furl python library's API: https://github.com/gruns/furl/blob/master/API.md
+/// </summary>
 namespace Furlstrong.Tests
 {
     /// <summary>
@@ -27,7 +30,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Furl_objects_let_you_access_and_modify_the_components_of_a_url()
         {
-            var f = Furl.Parse("http://user:pass@www.google.com:90");
+            var f = Furl.Parse("http://user:pass@www.google.com:90/");
 
             Assert.AreEqual("http", f.Scheme);
             Assert.AreEqual("user", f.Username);
@@ -39,9 +42,9 @@ namespace Furlstrong.Tests
         /// <summary>
         /// furl infers the default port for common schemes.
         /// </summary>
-        [TestCase("http://www.google.com", 80)]
-        [TestCase("https://secure.google.com", 443)]
-        [TestCase("unknown://secure.google.com", null)]
+        [TestCase("http://www.google.com/", 80)]
+        [TestCase("https://secure.google.com/", 443)]
+        [TestCase("unknown://secure.google.com/", null)]
         [Theory]
         public void Furl_infers_the_default_port_for_common_schemes(string url, int? expectedPort)
         {
@@ -53,9 +56,9 @@ namespace Furlstrong.Tests
         /// <summary>
         /// netloc is the string combination of username, password, host, and port, not including port if it is None or the default port for the provided scheme.
         /// </summary>
-        [TestCase("http://www.google.com", "www.google.com")]
-        [TestCase("http://www.google.com:99", "www.google.com:99")]
-        [TestCase("http://user:pass@www.google.com:99", "user:pass@www.google.com:99")]
+        [TestCase("http://www.google.com/", "www.google.com")]
+        [TestCase("http://www.google.com:99/", "www.google.com:99")]
+        [TestCase("http://user:pass@www.google.com:99/", "user:pass@www.google.com:99")]
         [Theory]
         public void Netloc_is_the_string_combination_of_username_password_host_and_port(string url, string expectedNetloc)
         {
