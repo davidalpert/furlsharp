@@ -2,14 +2,13 @@
 
 namespace Furlstrong.Tests
 {
-
     /// <summary>
-    /// furl objects let you access and modify the components of a URL
-    /// </summary>
-    /// <remarks>
     /// Given a url:
+    /// 
     /// - scheme://username:password@host:port/path?query#fragment
+    /// 
     /// Furl will parse that into:
+    /// 
     /// - **scheme** is the scheme string (all lowercase) or None. None means no scheme. An empty string means a protocol relative URL, like //www.google.com.
     /// - **username** is the username string for authentication.
     /// - **password** is the password string for authentication with username.
@@ -18,17 +17,15 @@ namespace Furlstrong.Tests
     /// - **path** is a Path object comprised of path segments.
     /// - **query** is a Query object comprised of query arguments.
     /// - **fragment** is a Fragment object comprised of a Path and Query object separated by an optional '?' separator.
-    /// </remarks>
+    /// </summary>
     [TestFixture]
     public class Basics
     {
         /// <summary>
-        /// >>> f = furl('http://user:pass@www.google.com:99/')
-        // >>> f.scheme, f.username, f.password, f.host, f.port
-        // ('http', 'user', 'pass', 'www.google.com', 99)p
+        /// furl objects let you access and modify the components of a URL
         /// </summary>
         [Test]
-        public void Http()
+        public void Furl_objects_let_you_access_and_modify_the_components_of_a_url()
         {
             var f = Furl.Parse("http://user:pass@www.google.com:90");
 
@@ -41,13 +38,6 @@ namespace Furlstrong.Tests
 
         /// <summary>
         /// furl infers the default port for common schemes.
-        /// >>> f = furl('https://secure.google.com/')
-        // >>> f.port
-        // 443
-        // 
-        // >>> f = furl('unknown://www.google.com/')
-        // >>> print f.port
-        // None
         /// </summary>
         [TestCase("http://www.google.com", 80)]
         [TestCase("https://secure.google.com", 443)]
@@ -58,6 +48,20 @@ namespace Furlstrong.Tests
             var f = Furl.Parse(url);
 
             Assert.AreEqual(expectedPort, f.Port);
+        }
+
+        /// <summary>
+        /// netloc is the string combination of username, password, host, and port, not including port if it is None or the default port for the provided scheme.
+        /// </summary>
+        [TestCase("http://www.google.com", "www.google.com")]
+        [TestCase("http://www.google.com:99", "www.google.com:99")]
+        [TestCase("http://user:pass@www.google.com:99", "user:pass@www.google.com:99")]
+        [Theory]
+        public void Netloc_is_the_string_combination_of_username_password_host_and_port(string url, string expectedNetloc)
+        {
+            var f = Furl.Parse(url);
+
+            Assert.AreEqual(expectedNetloc, f.NetLoc);
         }
     }
 }

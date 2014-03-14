@@ -1,4 +1,7 @@
-﻿namespace Furlstrong
+﻿using System.Collections.Generic;
+using System.Text;
+
+namespace Furlstrong
 {
     public class Furl
     {
@@ -8,7 +11,7 @@
 
             var f = new Furl()
                 {
-                    Scheme = result.Item1.Value.Item,
+                    Scheme = result.Item1.Value.Item.ToLowerInvariant(),
                     Host = result.Item3.Value.Item,
                 };
 
@@ -29,18 +32,44 @@
 
         private static int? GetDefaultPortFor(string scheme)
         {
-            switch (scheme.ToLowerInvariant())
-            {
-                case "http": return 80;
-                case "https": return 443;
-                default: return null;
-            }
+            return CommonSchemes.ContainsKey(scheme)
+                       ? CommonSchemes[scheme]
+                       : (int?) null;
         }
+
+        private static readonly Dictionary<string, int> CommonSchemes =
+            new Dictionary<string, int>
+                {
+                    {"http", 80},
+                    {"https", 443},
+                };
 
         public string Scheme { get; private set; }
         public string Username { get; private set; }
         public string Password { get; private set; }
         public string Host { get; private set; }
-        public int? Port { get; private set; }
+        public int? Port { get; private set; } 
+
+        public string NetLoc
+        {
+            get { 
+                var sb = new StringBuilder();
+                if (Username.IsNotNullOrWhiteSpace() && Password.IsNotNullOrWhiteSpace())
+                    sb.AppendFormat("{0}:{1}@", Username, Password);
+                if (Host.IsNotNullOrWhiteSpace())
+                    sb.Append(Host);
+                if (Port.HasValue && Port.Value != GetDefaultPortFor(Scheme))
+                    sb.AppendFormat(":{0}", Port);
+                return sb.ToString();
+            }
+        }
+    }
+
+    public static class StringExtensions
+    {
+        public static bool IsNotNullOrWhiteSpace(this string input)
+        {
+            return string.IsNullOrWhiteSpace(input) == false;
+        }
     }
 }
