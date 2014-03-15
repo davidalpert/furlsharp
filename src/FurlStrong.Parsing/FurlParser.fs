@@ -2,76 +2,20 @@
 
 open System
 open FParsec
+open ParserHelpers
+open FurlStrong.Parsing
 open FurlStrong.Parsing.AST
 
-// make this compiler directive condition true to trace the parsers
-#if DEBUG
-let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
-    fun stream ->
-        printfn "%A: Entering %s" stream.Position label
-        let reply = p stream
-        printfn "%A: Leaving %s (%A)" stream.Position label reply.Status
-        reply
-#else
-let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
-    fun stream -> p stream
-#endif
 
-let private ws = spaces
-let private ch c = pchar c
-let private ch_ws c = ch c .>> ws
-let private ws_ch_ws c = ws >>. ch c .>> ws
+let private pscheme = attempt (manyChars letter .>> str "://" |>> Scheme ) <!> "scheme"
+let private pcredentials = (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials) <!> "credentials"
+let private phost = attempt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
+let private pport = attempt (ch ':' >>. pint32 |>> Port) <!> "port"
+let private ppath = FurlPathParser.ppath
 
-let private str s = pstring s
-let private str_ws s = str s .>> ws
-let private ws_str_ws s = ws >>. str s .>> ws
-
-let private between_ch copen p cclose = between (ch copen) (ch cclose) p
-
-let resultSatisfies predicate msg (p: Parser<_,_>) : Parser<_,_> =
-    let error = messageError msg
-    fun stream ->
-      let state = stream.State
-      let reply = p stream
-      if reply.Status <> Ok || predicate reply.Result then reply
-      else
-          stream.BacktrackTo(state) // backtrack to beginning
-          Reply(Error, error)
-
-let parseIf (p1:Parser<_,_>) msg (p2:Parser<_,_>) : Parser<_,_> = 
-    let error = messageError msg
-    fun stream ->
-        let state = stream.State
-        let reply = p1 stream
-        stream.BacktrackTo(state) // backtrack to beginning
-        if reply.Status = Ok then
-            p2 stream
-        else
-            Reply(Error, error)
-
-//let private anything_until c = manySatisfy ((<>) c) .>> ch c
-let private anything_until c a = manySatisfy ((<>) c) .>> ch c |>> a
-let private max_int = Int32.MaxValue
-
-let private pscheme = opt (manyChars letter .>> str "://" |>> Scheme ) <!> "scheme"
-//let private pcredentials = opt (anything_until ':' .>>. anything_until '@' |>> (fun(u,p) -> new Credentials(new Username(u),new Password(p))
-let private pcredentials = opt (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials)
-let private phost = opt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
-let private pport = attempt (opt (ch ':' >>. pint32 |>> Port)) <!> "port"
-
-// paths
-let private ppathPart = ch '/' >>. manySatisfy((<>) '/')
-let private ppath = many1 ppathPart |>> Path <!> "path"
-
-let private purl = tuple5 pscheme pcredentials phost pport (opt ppath) |>> Url <!> "url"
+let private purl = tuple5 (opt pscheme) (opt pcredentials) (opt phost) (opt pport) (opt ppath) |>> Url <!> "url"
 
 let private parser = purl .>> eof
-
-exception ParseError of string * ParserError
-
-type ParseException (message:string, context:ParserError) =
-    inherit ApplicationException(message, null)
-    let Context = context
 
 let private ParseAST str =
     match run parser str with
