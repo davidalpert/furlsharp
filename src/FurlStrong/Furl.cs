@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,17 +9,43 @@ namespace Furlstrong
 {
     public class FurlPath
     {
+        private string _netloc;
+        private bool _isAbsolute;
+
         public FurlPath(IEnumerable<string> pathParts = null)
         {
             pathParts = pathParts ?? Enumerable.Empty<string>();
             Segments = new List<string>(Decode(pathParts));
         }
 
+        public FurlPath(bool isAbsolute, IEnumerable<string> pathParts = null)
+        {
+            IsAbsolute = isAbsolute;
+            pathParts = pathParts ?? Enumerable.Empty<string>();
+            Segments = new List<string>(Decode(pathParts));
+        }
+
         public List<string> Segments { get; set; }
+
+        public bool IsAbsolute
+        {
+            get { return _isAbsolute; }
+            set
+            {
+                if (_netloc.IsNotNullOrWhiteSpace() && value == false)
+                    throw new InvalidOperationException("Path.IsAbsolute is True and read-only for URLs with a Netloc (a username, password, host, and/or port). URL paths must be absolute if a netloc exists.");
+
+                _isAbsolute = value;
+            }
+        }
 
         public override string ToString()
         {
-            return "/" + string.Join("/", Segments.Select(Encode));
+            var path = string.Join("/", Segments.Select(Encode));
+
+            return IsAbsolute
+                       ? "/" + path
+                       : path;
         }
 
         public static string Encode(string raw)
@@ -40,7 +67,7 @@ namespace Furlstrong
         {
             var result = FurlPathParser.Parse(path);
 
-            var p = new FurlPath(result.Item2);
+            var p = new FurlPath(result.Item1, result.Item2);
 
             return p;
         }
@@ -48,6 +75,15 @@ namespace Furlstrong
         public static List<string> FromSegments(params string[] pathSegments)
         {
             return new List<string>(Decode(pathSegments));
+        }
+
+        public void UseNetloc(string netLoc)
+        {
+            _netloc = netLoc;
+            if (_netloc.IsNotNullOrWhiteSpace())
+            {
+                IsAbsolute = true;
+            }
         }
     }
 
@@ -65,9 +101,10 @@ namespace Furlstrong
 
         private static void InitializeWith(string url, Furl f)
         {
+            f.Path = new FurlPath();
+
             if (string.IsNullOrWhiteSpace(url))
             {
-                f.Path = new FurlPath();
                 return;
             }
 
@@ -95,14 +132,17 @@ namespace Furlstrong
                          ? port.Value.Item
                          : GetDefaultPortFor(f.Scheme);
 
-            var path = result.Item5 == null
-                           ? null
-                           : result.Item5.Value.Item2;
-            f.Path = new FurlPath(path);
+            var path = result.Item5;
+            f.Path = path == null
+                         ? new FurlPath()
+                         : new FurlPath(path.Value.Item1, path.Value.Item2);
         }
 
         private static int? GetDefaultPortFor(string scheme)
         {
+            if (string.IsNullOrWhiteSpace(scheme))
+                return null;
+
             return CommonSchemes.ContainsKey(scheme)
                        ? CommonSchemes[scheme]
                        : (int?) null;
@@ -115,11 +155,61 @@ namespace Furlstrong
                     {"https", 443},
                 };
 
-        public string Scheme { get; private set; }
-        public string Username { get; private set; }
-        public string Password { get; private set; }
-        public string Host { get; private set; }
-        public int? Port { get; private set; } 
+        private string _host;
+        private string _scheme;
+        private string _username;
+        private string _password;
+        private int? _port;
+        private FurlPath _path;
+
+        public string Scheme
+        {
+            get { return _scheme; }
+            private set
+            {
+                _scheme = value;
+                Path.UseNetloc(NetLoc);
+            }
+        }
+
+        public string Username
+        {
+            get { return _username; }
+            private set
+            {
+                _username = value;
+                Path.UseNetloc(NetLoc);
+            }
+        }
+
+        public string Password
+        {
+            get { return _password; }
+            private set
+            {
+                _password = value;
+                Path.UseNetloc(NetLoc);
+            }
+        }
+
+        public string Host
+        {
+            get { return _host; }
+            set { 
+                _host = value;
+                Path.UseNetloc(NetLoc);
+            }
+        }
+
+        public int? Port
+        {
+            get { return _port; }
+            private set
+            {
+                _port = value;
+                Path.UseNetloc(NetLoc);
+            }
+        }
 
         public string NetLoc
         {
@@ -135,7 +225,13 @@ namespace Furlstrong
             }
         }
 
-        public FurlPath Path { get; set; }
+        public FurlPath Path
+        {
+            get { return _path; }
+            set { _path = value; 
+                Path.UseNetloc(NetLoc);
+            }
+        }
 
         public string Url { get { return ToString(); } }
 

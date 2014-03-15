@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Furlstrong.Tests
@@ -47,6 +48,53 @@ namespace Furlstrong.Tests
 
             f.Path.Segments = FurlPath.FromSegments("segments", "are", "maintained", "decoded", @"^`<>[]""#/?");
             Assert.AreEqual("/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F".ToLowerInvariant(), f.Path.ToString());
+        }
+
+        [Test]
+        public void A_path_that_starts_with_backslash_is_considered_absolute()
+        {
+            var f = new Furl("/url/path");
+            Assert.IsTrue(f.Path.IsAbsolute, "/url/path should be absolute.");
+        }
+
+        [Test]
+        public void A_path_can_be_absolute_or_not_as_specified_or_set()
+        {
+            var f = new Furl("/url/path");
+
+            f.Path.IsAbsolute = false;
+            Assert.AreEqual("url/path",f.Path.ToString());
+
+            f.Path.IsAbsolute = true;
+            Assert.AreEqual("/url/path",f.Path.ToString());
+        }
+
+        /// <remarks>
+        /// This restriction exists because a URL path must start with '/' 
+        /// to separate itself from a netloc. 
+        /// </remarks>
+        [Test]
+        public void URL_paths_must_be_absolute_if_a_netloc_is_present()
+        {
+            var f = new Furl("/url/path");
+
+            f.Path.IsAbsolute = false;
+            Assert.AreEqual("url/path",f.Path.ToString());
+
+            f.Host = "arc.io";
+            Assert.AreEqual("arc.io/url/path", f.Url);
+            Assert.IsTrue(f.Path.IsAbsolute, "arc.io/url/path should be absolute.");
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                {
+                    f.Path.IsAbsolute = false;
+                });
+
+            Assert.AreEqual(
+                "Path.IsAbsolute is True and read-only for URLs with a Netloc (a username, password, host, and/or port). URL paths must be absolute if a netloc exists.",
+                ex.Message);
+
+            Assert.AreEqual("arc.io/url/path", f.Url);
         }
     }
 }
