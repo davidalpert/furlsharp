@@ -195,6 +195,7 @@ namespace Furlstrong
         public string Host
         {
             get { return _host; }
+            [LogMethodEntryAndExit]
             set { 
                 _host = value;
                 Path.UseNetloc(NetLoc);
@@ -204,6 +205,7 @@ namespace Furlstrong
         public int? Port
         {
             get { return _port; }
+            [LogMethodEntryAndExit]
             private set
             {
                 _port = value;
