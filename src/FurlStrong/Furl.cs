@@ -11,19 +11,29 @@ namespace Furlstrong
         public FurlPath(IEnumerable<string> pathParts = null)
         {
             pathParts = pathParts ?? Enumerable.Empty<string>();
-            Segments = new List<string>(Unencode(pathParts));
+            Segments = new List<string>(Decode(pathParts));
         }
 
-        private static IEnumerable<string> Unencode(IEnumerable<string> pathParts)
-        {
-            return pathParts.Select(HttpUtility.UrlDecode);
-        }
-
-        public List<string> Segments { get; private set; }
+        public List<string> Segments { get; set; }
 
         public override string ToString()
         {
-            return "/" + string.Join("/", Segments.Select(HttpUtility.UrlPathEncode));
+            return "/" + string.Join("/", Segments.Select(Encode));
+        }
+
+        public static string Encode(string raw)
+        {
+            return HttpUtility.UrlEncode(raw).Replace("+", "%20");
+        }
+
+        public static string Decode(string encoded)
+        {
+            return HttpUtility.UrlDecode(encoded);
+        }
+
+        private static IEnumerable<string> Decode(IEnumerable<string> pathParts)
+        {
+            return pathParts.Select(Decode);
         }
 
         public static FurlPath Parse(string path)
@@ -34,15 +44,34 @@ namespace Furlstrong
 
             return p;
         }
+
+        public static List<string> FromSegments(params string[] pathSegments)
+        {
+            return new List<string>(Decode(pathSegments));
+        }
     }
 
     public class Furl
     {
+        public Furl(string url)
+        {
+            InitializeWith(url, this);
+        }
+
         public static Furl Parse(string url)
         {
-            var result = FurlParser.Parse(url);
+            return new Furl(url);
+        }
 
-            var f = new Furl();
+        private static void InitializeWith(string url, Furl f)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                f.Path = new FurlPath();
+                return;
+            }
+
+            var result = FurlParser.Parse(url);
 
             var scheme = result.Item1;
             f.Scheme = scheme != null
@@ -58,20 +87,18 @@ namespace Furlstrong
 
             var host = result.Item3;
             f.Host = host != null
-                           ? host.Value.Item
-                           : null;
-
-            var port = result.Item4;
-            f.Port = port != null 
-                ? port.Value.Item 
-                : GetDefaultPortFor(f.Scheme);
-
-            var path = result.Item5;
-            f.Path = path != null
-                         ? new FurlPath(path.Value.Item2)
+                         ? host.Value.Item
                          : null;
 
-            return f;
+            var port = result.Item4;
+            f.Port = port != null
+                         ? port.Value.Item
+                         : GetDefaultPortFor(f.Scheme);
+
+            var path = result.Item5 == null
+                           ? null
+                           : result.Item5.Value.Item2;
+            f.Path = new FurlPath(path);
         }
 
         private static int? GetDefaultPortFor(string scheme)
@@ -109,6 +136,25 @@ namespace Furlstrong
         }
 
         public FurlPath Path { get; set; }
+
+        public string Url { get { return ToString(); } }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            if (Scheme.IsNotNullOrWhiteSpace())
+                sb.AppendFormat("{0}://", Scheme);
+
+            var netloc = NetLoc;
+            if (netloc.IsNotNullOrWhiteSpace())
+                sb.Append(netloc);
+
+            var path = Path.ToString();
+            if (path.IsNotNullOrWhiteSpace())
+                sb.Append(path);
+
+            return sb.ToString();
+        }
     }
 
     public static class StringExtensions

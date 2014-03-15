@@ -28,34 +28,25 @@ namespace Furlstrong.Tests
         }
 
         [Test]
-        public void URL_path_segments_can_be_manipulated_directly()
+        public void URL_path_segments_can_be_manipulated_directly_as_decoded_strings()
         {
-            var f = new Furl();
-            /*
-            >>> f.path.segments = ['a', 'new', 'path', '']
-            >>> str(f.path)
-            '/a/new/path/'
+            var f = new Furl("http://www.google.com/");
 
-            >>> f.path = 'o/hi/there/with%20some%20encoding/'
-            >>> f.path.segments
-            ['o', 'hi', 'there', 'with some encoding', '']
-            >>> str(f.path)
-            '/o/hi/there/with%20some%20encoding/'
-
-            >>> f.url
-            'http://www.google.com/o/hi/there/with%20some%20encoding/'
-
-            >>> f.path.segments = ['segments', 'are', 'maintained', 'decoded', '^`<>[]"#/?']
-            >>> str(f.path)
-            '/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F'
-             */
+            f.Path.Segments = FurlPath.FromSegments("a", "new", "path", "");
+            Assert.AreEqual("/a/new/path/", f.Path.ToString());
 
             f.Path = FurlPath.Parse("o/hi/there/with%20some%20encoding/");
-
+            
             CollectionAssert.AreEqual(
                 new[] { "o", "hi", "there", "with some encoding", "" }, f.Path.Segments
                 );
 
+            Assert.AreEqual("/o/hi/there/with%20some%20encoding/", f.Path.ToString());
+
+            Assert.AreEqual("http://www.google.com/o/hi/there/with%20some%20encoding/", f.ToString());
+
+            f.Path.Segments = FurlPath.FromSegments("segments", "are", "maintained", "decoded", @"^`<>[]""#/?");
+            Assert.AreEqual("/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F".ToLowerInvariant(), f.Path.ToString());
         }
     }
 }
