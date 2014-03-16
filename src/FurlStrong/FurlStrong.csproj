@@ -49,8 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AOP\InterceptorAttribute.cs" />
-    <Compile Include="AOP\IMethodDecorator.cs" />
+    <Compile Include="AOP\LogMethodEntryAndExitAttribute.cs" />
     <Compile Include="Furl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
