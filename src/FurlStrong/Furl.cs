@@ -166,52 +166,31 @@ namespace Furlstrong
         public string Scheme
         {
             get { return _scheme; }
-            private set
-            {
-                _scheme = value;
-                Path.UseNetloc(NetLoc);
-            }
+            [UpdatePathNetlocOnExit] private set { _scheme = value; }
         }
 
         public string Username
         {
             get { return _username; }
-            private set
-            {
-                _username = value;
-                Path.UseNetloc(NetLoc);
-            }
+            [UpdatePathNetlocOnExit] private set { _username = value; }
         }
 
         public string Password
         {
             get { return _password; }
-            private set
-            {
-                _password = value;
-                Path.UseNetloc(NetLoc);
-            }
+            [UpdatePathNetlocOnExit] private set { _password = value; }
         }
 
         public string Host
         {
             get { return _host; }
-            [LogMethodEntryAndExit]
-            set { 
-                _host = value;
-                Path.UseNetloc(NetLoc);
-            }
+            [UpdatePathNetlocOnExit] set { _host = value; }
         }
 
         public int? Port
         {
             get { return _port; }
-            [LogMethodEntryAndExit]
-            private set
-            {
-                _port = value;
-                Path.UseNetloc(NetLoc);
-            }
+            [UpdatePathNetlocOnExit] private set { _port = value; }
         }
 
         public string NetLoc

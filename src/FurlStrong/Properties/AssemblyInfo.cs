@@ -37,4 +37,4 @@ using FurlStrong.AOP;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 // registering MethodDecoratorEx.Fody method decorator attributes
-[assembly: LogMethodEntryAndExit ]
+[assembly: UpdatePathNetlocOnExit ]

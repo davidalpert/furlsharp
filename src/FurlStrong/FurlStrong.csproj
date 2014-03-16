@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AOP\LogMethodEntryAndExitAttribute.cs" />
+    <Compile Include="AOP\UpdatePathNetlocOnExitAttribute.cs" />
     <Compile Include="Furl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
