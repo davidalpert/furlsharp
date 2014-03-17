@@ -17,7 +17,7 @@ namespace Furlstrong
         public FurlPath(IEnumerable<string> pathParts = null)
         {
             pathParts = pathParts ?? Enumerable.Empty<string>();
-            Segments = new List<string>(Decode(pathParts));
+            Segments = new List<string>(FurlUtility.Decode(pathParts));
         }
 
         public FurlPath(bool isAbsolute, IEnumerable<string> pathParts = null, bool hasTrailingSlash = false)
@@ -38,7 +38,7 @@ namespace Furlstrong
         {
             IsAbsolute = isAbsolute;
             pathParts = pathParts ?? Enumerable.Empty<string>();
-            Segments = new List<string>(Decode(pathParts));
+            Segments = new List<string>(FurlUtility.Decode(pathParts));
 
             if (hasTrailingSlash) Segments.Add("");
         }
@@ -89,26 +89,11 @@ namespace Furlstrong
 
         public override string ToString()
         {
-            var path = string.Join("/", Segments.Select(Encode));
+            var path = string.Join("/", Segments.Select(FurlUtility.Encode));
 
             return IsAbsolute
                        ? "/" + path
                        : path;
-        }
-
-        public static string Encode(string raw)
-        {
-            return HttpUtility.UrlEncode(raw).Replace("+", "%20");
-        }
-
-        public static string Decode(string encoded)
-        {
-            return HttpUtility.UrlDecode(encoded);
-        }
-
-        private static IEnumerable<string> Decode(IEnumerable<string> pathParts)
-        {
-            return pathParts.Select(Decode);
         }
 
         public static FurlPath Parse(string path)
@@ -122,7 +107,7 @@ namespace Furlstrong
 
         public static List<string> FromSegments(params string[] pathSegments)
         {
-            return new List<string>(Decode(pathSegments));
+            return new List<string>(FurlUtility.Decode(pathSegments));
         }
 
         public void UseNetloc(string netLoc)
@@ -132,6 +117,24 @@ namespace Furlstrong
             {
                 IsAbsolute = true;
             }
+        }
+    }
+
+    public static class FurlUtility
+    {
+        public static string Encode(string raw)
+        {
+            return HttpUtility.UrlEncode(raw).Replace("+", "%20");
+        }
+
+        public static string Decode(string encoded)
+        {
+            return HttpUtility.UrlDecode(encoded);
+        }
+
+        public static IEnumerable<string> Decode(IEnumerable<string> pathParts)
+        {
+            return pathParts.Select(Decode);
         }
     }
 
@@ -191,9 +194,9 @@ namespace Furlstrong
             {
                 foreach (var param in query.Value.Item)
                 {
-                    var key = param.Item1;
-                    var value = param.Item2;
-                    f.Query[key] = value.Value;
+                    var key = FurlUtility.Decode(param.Item1);
+                    var value = FurlUtility.Decode(param.Item2.Value);
+                    f.Query[key] = value;
                 }
             }
 
@@ -330,8 +333,8 @@ namespace Furlstrong
             var n = Count;
             for(var i = 0;i < n;i++)
             {
-                var key = GetKey(i);
-                var value = Get(i);
+                var key = FurlUtility.Encode(GetKey(i));
+                var value = FurlUtility.Encode(Get(i));
                 if (value == null)
                 {
                     sb.Append(key);
