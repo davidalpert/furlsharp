@@ -56,6 +56,15 @@ namespace Furlstrong
             }
         }
 
+        public bool IsDirectory {
+            get {
+                return Segments.Any() == false 
+                    ||  string.IsNullOrWhiteSpace(Segments.Last());
+            }
+        }
+
+        public bool IsFile { get { return !IsDirectory; } }
+
         public override string ToString()
         {
             var path = string.Join("/", Segments.Select(Encode));
