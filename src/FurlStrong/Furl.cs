@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -149,6 +150,7 @@ namespace Furlstrong
         private static void InitializeWith(string url, Furl f)
         {
             f.Path = new FurlPath();
+            f.Query = new FurlQuery();
 
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -184,7 +186,18 @@ namespace Furlstrong
                 ? new FurlPath() 
                 : new FurlPath(path.Value.Item1, path.Value.Item2);
 
-            var fragment = result.Item6;
+            var query = result.Item6;
+            if (query != null)
+            {
+                foreach (var param in query.Value.Item)
+                {
+                    var key = param.Item1;
+                    var value = param.Item2;
+                    f.Query[key] = value.Value;
+                }
+            }
+
+            var fragment = result.Item7;
             var fragmentPath = fragment == null ? null : fragment.Value.Item;
             f.Fragment = fragmentPath == null
                              ? new FurlFragment()
@@ -200,6 +213,8 @@ namespace Furlstrong
                        ? CommonSchemes[scheme]
                        : (int?) null;
         }
+
+        public FurlQuery Query { get; private set; }
 
         private static readonly Dictionary<string, int> CommonSchemes =
             new Dictionary<string, int>
@@ -285,11 +300,49 @@ namespace Furlstrong
             if (path.IsNotNullOrWhiteSpace())
                 sb.Append(path);
 
+            var query = Query.Serialize();
+            if (query.IsNotNullOrWhiteSpace())
+                sb.AppendFormat("?{0}", query);
+
             var fragment = Fragment.ToString();
             if (fragment.IsNotNullOrWhiteSpace())
                 sb.AppendFormat("#{0}", fragment);
 
             return sb.ToString();
+        }
+    }
+
+    public class FurlQuery : NameValueCollection
+    {
+        public override string ToString()
+        {
+            return Serialize();
+        }
+
+        public string Serialize(char separator = '=')
+        {
+            if (HasKeys() == false)
+            {
+                return null;
+            }
+
+            var sb = new StringBuilder();
+            var n = Count;
+            for(var i = 0;i < n;i++)
+            {
+                var key = GetKey(i);
+                var value = Get(i);
+                if (value == null)
+                {
+                    sb.Append(key);
+                }
+                else
+                {
+                    sb.AppendFormat("{0}{1}{2}",key,separator,value);
+                }
+                sb.Append('&');
+            }
+            return sb.ToString().TrimEnd('&');
         }
     }
 

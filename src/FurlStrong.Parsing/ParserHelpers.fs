@@ -7,9 +7,10 @@ open FParsec
 #if DEBUG
 let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
     fun stream ->
-        printfn "%A: Entering %s" stream.Position label
+        //printfn "%A: Entering %s" stream.Position label
         let reply = p stream
-        printfn "%A: Leaving %s (%A)" stream.Position label reply.Status
+        let result = reply.Result
+        printfn "%A: Leaving %s (%A) - (%A)" stream.Position label reply.Status result
         reply
 #else
 let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
@@ -61,3 +62,15 @@ let pipe6 p1 p2 p3 p4 p5 p6 fn =
 
 let tuple6 p1 p2 p3 p4 p5 p6 = 
      pipe6 p1 p2 p3 p4 p5 p6 (fun a b c d e f -> (a, b, c, d, e, f))
+
+let pipe7 p1 p2 p3 p4 p5 p6 p7 fn =
+        p1 >>= fun a ->
+        p2 >>= fun b ->
+        p3 >>= fun c ->
+        p4 >>= fun d ->
+        p5 >>= fun e -> 
+        p6 >>= fun f -> 
+        p7 >>= fun g -> preturn (fn a b c d e f g)
+
+let tuple7 p1 p2 p3 p4 p5 p6 p7 = 
+     pipe7 p1 p2 p3 p4 p5 p6 p7 (fun a b c d e f g -> (a, b, c, d, e, f, g))

@@ -8,6 +8,8 @@ type Host = Host of string
 type Port = Port of int
 type PathNode = string * bool // the node * has trailing slash?
 type Path = Path of bool * PathNode list
+type QueryStringParameter = QueryStringParameter of string * string option
+type QueryString = QueryString of QueryStringParameter list
 type Fragment = Fragment of Path
 
-type Url = Url of Scheme option * Credentials option * Host option * Port option * Path option * Fragment option
+type Url = Url of Scheme option * Credentials option * Host option * Port option * Path option * QueryString option * Fragment option

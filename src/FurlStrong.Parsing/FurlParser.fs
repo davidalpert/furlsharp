@@ -12,9 +12,12 @@ let private pcredentials = (parseIf (regex "[^/]+\@") "expected '@'" (anything_u
 let private phost = attempt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
 let private pport = attempt (ch ':' >>. pint32 |>> Port) <!> "port"
 let private ppath = FurlPathParser.ppath
+let private pqueryPair = attempt (tuple2 (optional (ch '&') >>. many1Satisfy (isNoneOf "/#=&")) (attempt (opt (ch '=' >>. manySatisfy (isNoneOf "/#&")))) |>> QueryStringParameter) <!> "key/value"
+let private pquery = attempt (ch '?' >>. many pqueryPair |>> QueryString) <!> "querystring"
+
 let private pfragment = attempt (ch '#' >>. ppath |>> Fragment) <!> "fragment"
 
-let private purl = tuple6 (opt pscheme) (opt pcredentials) (opt phost) (opt pport) (opt ppath) (opt pfragment) |>> Url <!> "url"
+let private purl = tuple7 (opt pscheme) (opt pcredentials) (opt phost) (opt pport) (opt ppath) (opt pquery) (opt pfragment) |>> Url <!> "url"
 
 let private parser = purl .>> eof
 
