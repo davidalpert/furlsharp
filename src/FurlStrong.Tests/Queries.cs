@@ -49,5 +49,62 @@ namespace Furlstrong.Tests
 
             Assert.AreEqual("silicon=14&iron=26&magnesium=12", f.Query.ToString());
         }
+
+        [Test]
+        public void Query_can_also_store_multiple_values_for_the_same_key()
+        {
+            var f = new Furl("http://www.google.com/?space=jams&space=slams");
+
+            Assert.Inconclusive("Pending the implementation of an ordered, multivalue dictionary.");
+            // single access returns the first
+            Assert.AreEqual("jams", f.Query["space"]);
+
+            // list access returns the whole list
+            CollectionAssert.AreEqual(new [] {"jams", "slams"}, f.Query.GetList("space"));
+
+            f.Query.AddList("repeated", "1", "2", "3");
+
+            Assert.AreEqual("space=jams&space=slams&repeated=1&repeated=2&repeated=3", f.Query.ToString());
+
+            Assert.AreEqual("slams", f.Query.PopValue("space"));
+
+            Assert.AreEqual("2", f.Query.PopValue("repeated", "2"));
+
+            Assert.AreEqual("space=jams&repeated=1&repeated=3", f.Query.ToString());
+        }
+        /*
+params is one dimensional. If a list of values is provided as a query value, that list is interpretted as multiple values.
+
+>>> f = furl()
+>>> f.args['repeated'] = ['1', '2', '3']
+>>> f.add(args={'space':['jams', 'slams']})
+>>> str(f.query)
+'repeated=1&repeated=2&repeated=3&space=jams&space=slams'
+This makes sense -- URL queries are inherently one dimensional. Query values cannot have subvalues.
+
+See the omdict documentation for more information on interacting with the ordered multivalue dictionary params.
+
+Parameters
+
+To produce an empty query argument like http://sprop.su/?param=, use an empty string as the parameter value.
+
+>>> f = furl('http://sprop.su')
+>>> f.args['param'] = ''
+>>> f.url
+'http://sprop.su/?param='
+To produce an empty query argument without a trailing =, use None as the parameter value.
+
+>>> f = furl('http://sprop.su')
+>>> f.args['param'] = None
+>>> f.url
+'http://sprop.su/?param'
+encode(delimeter='&') can be used to encode query strings with delimeters like ;.
+
+>>> f.query = 'space=jams&woofs=squeeze+dog'
+>>> f.query.encode()
+'space=jams&woofs=squeeze+dog'
+>>> f.query.encode(';')
+'space=jams;woofs=squeeze+dog'
+         */
     }
 }

@@ -371,6 +371,25 @@ namespace Furlstrong
             }
         }
 
+        public IEnumerable<string> GetList(string key)
+        {
+            return null;
+        }
+
+        public void AddList(string key, params string[] values)
+        {
+        }
+
+        public string PopValue(string key)
+        {
+            return null;
+        }
+
+        public string PopValue(string key, string value)
+        {
+            return null;
+        }
+
         public static FurlQuery Parse(string querystring)
         {
             var result = FurlQueryStringParser.Parse("?" + querystring.TrimStart('?'));
