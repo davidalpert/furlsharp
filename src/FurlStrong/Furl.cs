@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
 using FurlStrong.AOP;
+using ASTPath = Microsoft.FSharp.Collections.FSharpList<System.Tuple<string, bool>>;
 
 namespace Furlstrong
 {
@@ -19,11 +19,27 @@ namespace Furlstrong
             Segments = new List<string>(Decode(pathParts));
         }
 
-        public FurlPath(bool isAbsolute, IEnumerable<string> pathParts = null)
+        public FurlPath(bool isAbsolute, IEnumerable<string> pathParts = null, bool hasTrailingSlash = false)
+        {
+            Initialize(isAbsolute, pathParts, hasTrailingSlash);
+        }
+
+        internal FurlPath(bool isAbsolute, ASTPath path)
+        {
+            var lastPathNode = path.LastOrDefault();
+            var hasTrailingSlash = lastPathNode != null && lastPathNode.Item2;
+            var pathParts = path.Select(n => n.Item1).ToList();
+
+            Initialize(isAbsolute, pathParts, hasTrailingSlash);
+        }
+
+        private void Initialize(bool isAbsolute, IEnumerable<string> pathParts, bool hasTrailingSlash)
         {
             IsAbsolute = isAbsolute;
             pathParts = pathParts ?? Enumerable.Empty<string>();
             Segments = new List<string>(Decode(pathParts));
+
+            if (hasTrailingSlash) Segments.Add("");
         }
 
         public List<string> Segments { get; set; }
@@ -134,9 +150,15 @@ namespace Furlstrong
                          : GetDefaultPortFor(f.Scheme);
 
             var path = result.Item5;
-            f.Path = path == null
-                         ? new FurlPath()
-                         : new FurlPath(path.Value.Item1, path.Value.Item2);
+            f.Path = path == null 
+                ? new FurlPath() 
+                : new FurlPath(path.Value.Item1, path.Value.Item2);
+
+            var fragment = result.Item6;
+            var fragmentPath = fragment == null ? null : fragment.Value.Item;
+            f.Fragment = fragmentPath == null
+                             ? new FurlFragment()
+                             : new FurlFragment(fragmentPath.Item1, fragmentPath.Item2);
         }
 
         private static int? GetDefaultPortFor(string scheme)
@@ -215,6 +237,8 @@ namespace Furlstrong
             }
         }
 
+        public FurlFragment Fragment { get; set; }
+
         public string Url { get { return ToString(); } }
 
         public override string ToString()
@@ -231,7 +255,31 @@ namespace Furlstrong
             if (path.IsNotNullOrWhiteSpace())
                 sb.Append(path);
 
+            var fragment = Fragment.ToString();
+            if (fragment.IsNotNullOrWhiteSpace())
+                sb.AppendFormat("#{0}", fragment);
+
             return sb.ToString();
+        }
+    }
+
+    public class FurlFragment
+    {
+        public FurlFragment()
+        {
+            Path = new FurlPath();
+        }
+
+        internal FurlFragment(bool item1, ASTPath item2)
+        {
+            Path = new FurlPath(item1, item2);
+        }
+
+        public FurlPath Path { get; set; }
+
+        public override string ToString()
+        {
+            return Path.ToString();
         }
     }
 

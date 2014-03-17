@@ -51,3 +51,13 @@ let parseIf (p1:Parser<_,_>) msg (p2:Parser<_,_>) : Parser<_,_> =
 let anything_until c a = manySatisfy ((<>) c) .>> ch c |>> a
 let max_int = Int32.MaxValue
 
+let pipe6 p1 p2 p3 p4 p5 p6 fn =
+        p1 >>= fun a ->
+        p2 >>= fun b ->
+        p3 >>= fun c ->
+        p4 >>= fun d ->
+        p5 >>= fun e -> 
+        p6 >>= fun f -> preturn (fn a b c d e f)
+
+let tuple6 p1 p2 p3 p4 p5 p6 = 
+     pipe6 p1 p2 p3 p4 p5 p6 (fun a b c d e f -> (a, b, c, d, e, f))

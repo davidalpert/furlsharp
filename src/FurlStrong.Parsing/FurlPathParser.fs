@@ -8,9 +8,8 @@ open ParserHelpers
 
 // paths
 let private proot = attempt (opt (ch '/')) <!> "path root"
-let private ppathNode = manySatisfy((<>) '/') <!> "path node"
-//let private ppathPart = ch '/' >>. manySatisfy((<>) '/') <!> "path part"
-let internal ppath = pipe3 proot ppathNode (many (ch '/' >>. ppathNode)) (fun root rootNode nodes -> (root.IsSome,rootNode::nodes)) |>> Path <!> "path"
+let private ppathNode = pipe2 (many1Satisfy (isNoneOf "/#")) (opt (ch '/')) (fun node trailingSlash -> (node,trailingSlash.IsSome)) <!> "path node"
+let internal ppath = pipe2 proot (many (ppathNode)) (fun root nodes -> (root.IsSome,nodes)) |>> Path <!> "path"
 
 let private parser = ppath
 

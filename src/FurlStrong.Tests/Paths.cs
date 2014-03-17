@@ -39,7 +39,7 @@ namespace Furlstrong.Tests
             f.Path = FurlPath.Parse("o/hi/there/with%20some%20encoding/");
             
             CollectionAssert.AreEqual(
-                new[] { "o", "hi", "there", "with some encoding", "" }, f.Path.Segments
+                new[] { "o", "hi", "there", "with some encoding", ""}, f.Path.Segments
                 );
 
             Assert.AreEqual("/o/hi/there/with%20some%20encoding/", f.Path.ToString());
@@ -96,6 +96,45 @@ namespace Furlstrong.Tests
 
             Assert.AreEqual("arc.io/url/path", f.Url);
         }
+
+
+        [Test]
+        public void Here_is_a_fragment_path_example()
+        {
+            var f = new Furl("http://www.google.com/#/absolute/fragment/path/");
+
+            Assert.IsTrue(f.Path.IsAbsolute, "http://www.google.com/ is an absolute path");
+            Assert.AreEqual("/", f.Path.ToString(), "The '#' character was mistakenly parsed as a path node.");
+
+            Assert.IsTrue(f.Fragment.Path.IsAbsolute, "#/absolute/fragment/path/ describes an absolute fragment path.");
+
+            f.Fragment.Path.IsAbsolute = false;
+            Assert.AreEqual("http://www.google.com/#absolute/fragment/path/", f.Url);
+
+            f.Fragment.Path.IsAbsolute = true;
+            Assert.AreEqual("http://www.google.com/#/absolute/fragment/path/", f.Url);
+        }
+/*
+A path that ends with '/' is considered a directory, and otherwise considered a file. The Path attribute isdir returns True if the path is a directory, False otherwise. Conversely, the attribute isfile returns True if the path is a file, False otherwise.
+
+>>> f = furl('http://www.google.com/a/directory/')
+>>> f.path.isdir
+True
+>>> f.path.isfile
+False
+
+>>> f = furl('http://www.google.com/a/file')
+>>> f.path.isdir
+False
+>>> f.path.isfile
+True
+A path can be normalized with normalize(). normalize() returns the Path object for method chaining.
+
+>>> f = furl('http://www.google.com////a/./b/lolsup/../c/')
+>>> f.path.normalize()
+>>> f.url
+'http://www.google.com/a/b/c/'
+         */
     }
 }
 
