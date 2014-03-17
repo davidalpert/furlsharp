@@ -65,6 +65,27 @@ namespace Furlstrong
 
         public bool IsFile { get { return !IsDirectory; } }
 
+        public FurlPath Normalize()
+        {
+            // TODO: refactor paths so that they are stored like a linked list
+            //       path (isFile) -> path (isDirectory) ...
+            //       so that path.ParentDirectory is like stripping off a node in the url
+
+            var nodesToClear = this.Segments.Select((node, i) => node == ".." ? i - 1 : -1).ToArray();
+
+            var normalizedSegments = this.Segments
+                                         .Select((node, i) => nodesToClear.Any(j => j == i) ? "" : node.Replace('.', ' '))
+                                         .Where(StringExtensions.IsNotNullOrWhiteSpace)
+                                         .ToList();
+
+            if (IsDirectory) 
+                normalizedSegments.Add("");
+
+            Segments = normalizedSegments;
+
+            return this;
+        }
+
         public override string ToString()
         {
             var path = string.Join("/", Segments.Select(Encode));

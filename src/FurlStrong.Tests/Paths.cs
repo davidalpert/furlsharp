@@ -115,8 +115,6 @@ namespace Furlstrong.Tests
             Assert.AreEqual("http://www.google.com/#/absolute/fragment/path/", f.Url);
         }
 
-
-
         /// <summary>
         /// A path that ends with '/' is considered a directory, and otherwise considered a file. 
         /// The Path attribute isdir returns True if the path is a directory, False otherwise. 
@@ -132,15 +130,22 @@ namespace Furlstrong.Tests
             Assert.AreEqual(isDirectory, f.Path.IsDirectory, url + " is a directory.");
             Assert.AreEqual(isFile, f.Path.IsFile, url + " is a file.");
         }
-/*
 
-A path can be normalized with normalize(). normalize() returns the Path object for method chaining.
+        /// <summary>
+        /// A path can be normalized with normalize(). 
+        /// normalize() returns the Path object for method chaining.
+        /// </summary>
+        [Test]
+        public void A_path_can_be_normalized_with_normalize()
+        {
+            var f = new Furl("http://www.google.com////a/./b/lolsup/../c/");
+            Assert.AreEqual( "http://www.google.com////a/./b/lolsup/../c/", f.Url);
 
->>> f = furl('http://www.google.com////a/./b/lolsup/../c/')
->>> f.path.normalize()
->>> f.url
-'http://www.google.com/a/b/c/'
-         */
+            f.Path.Normalize();
+            Assert.AreEqual("http://www.google.com/a/b/c/", f.Url);
+
+            Assert.AreEqual(f.Path, f.Path.Normalize());
+        }
     }
 }
 
