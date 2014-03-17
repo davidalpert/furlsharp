@@ -35,5 +35,19 @@ namespace Furlstrong.Tests
             Assert.AreEqual("1 2", f.Query["on e"]);
             Assert.AreEqual("2", f.Query["two"]);
         }
+
+        [Test]
+        public void Query_is_a_one_dimensional_ordered_multivalue_dictionary_method_that_maintains_parity_with_the_NameValueCollection_that_backs_HttpRequest_QueryString()
+        {
+            var f = new Furl("http://google.com/");
+
+            f.Query = FurlQuery.Parse("silicon=14&iron=26&inexorable%20progress=vae%20victus");
+
+            f.Query["inexorable progress"] = null;
+
+            f.Query["magnesium"] = "12";
+
+            Assert.AreEqual("silicon=14&iron=26&magnesium=12", f.Query.ToString());
+        }
     }
 }

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using FurlStrong.AOP;
+using FurlStrong.Parsing.AST;
+using Microsoft.FSharp.Collections;
 using ASTPath = Microsoft.FSharp.Collections.FSharpList<System.Tuple<string, bool>>;
 
 namespace Furlstrong
@@ -192,12 +194,7 @@ namespace Furlstrong
             var query = result.Item6;
             if (query != null)
             {
-                foreach (var param in query.Value.Item)
-                {
-                    var key = FurlUtility.Decode(param.Item1);
-                    var value = FurlUtility.Decode(param.Item2.Value);
-                    f.Query[key] = value;
-                }
+                f.Query = new FurlQuery(query.Value.Item);
             }
 
             var fragment = result.Item7;
@@ -217,7 +214,7 @@ namespace Furlstrong
                        : (int?) null;
         }
 
-        public FurlQuery Query { get; private set; }
+        public FurlQuery Query { get; set; }
 
         private static readonly Dictionary<string, int> CommonSchemes =
             new Dictionary<string, int>
@@ -317,6 +314,20 @@ namespace Furlstrong
 
     public class FurlQuery : NameValueCollection
     {
+        public FurlQuery()
+        {
+        }
+
+        public FurlQuery(IEnumerable<QueryStringParameter> parameters)
+        {
+            foreach (var param in parameters)
+            {
+                var key = FurlUtility.Decode(param.Item1);
+                var value = FurlUtility.Decode(param.Item2.Value);
+                this[key] = value;
+            }
+        }
+
         public override string ToString()
         {
             return Serialize();
@@ -346,6 +357,27 @@ namespace Furlstrong
                 sb.Append('&');
             }
             return sb.ToString().TrimEnd('&');
+        }
+
+        public new string this[string name]
+        {
+            get { return base[name]; }
+            set
+            {
+                if (value == null)
+                    Remove(name);
+                else
+                    base[name] = value;
+            }
+        }
+
+        public static FurlQuery Parse(string querystring)
+        {
+            var result = FurlQueryStringParser.Parse("?" + querystring.TrimStart('?'));
+
+            var p = new FurlQuery(result.Item);
+
+            return p;
         }
     }
 

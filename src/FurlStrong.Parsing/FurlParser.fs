@@ -6,14 +6,12 @@ open ParserHelpers
 open FurlStrong.Parsing
 open FurlStrong.Parsing.AST
 
-
 let private pscheme = attempt (manyChars letter .>> str "://" |>> Scheme ) <!> "scheme"
 let private pcredentials = (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials) <!> "credentials"
 let private phost = attempt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
 let private pport = attempt (ch ':' >>. pint32 |>> Port) <!> "port"
 let private ppath = FurlPathParser.ppath
-let private pqueryPair = attempt (tuple2 (optional (ch '&') >>. many1Satisfy (isNoneOf "/#=&")) (attempt (opt (ch '=' >>. manySatisfy (isNoneOf "/#&")))) |>> QueryStringParameter) <!> "key/value"
-let private pquery = attempt (ch '?' >>. many pqueryPair |>> QueryString) <!> "querystring"
+let private pquery = FurlQueryStringParser.pqueryString
 
 let private pfragment = attempt (ch '#' >>. ppath |>> Fragment) <!> "fragment"
 

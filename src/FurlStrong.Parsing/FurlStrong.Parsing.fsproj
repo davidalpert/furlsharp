@@ -55,6 +55,7 @@
     <Compile Include="ParseError.fs" />
     <Compile Include="ParserHelpers.fs" />
     <Compile Include="FurlPathParser.fs" />
+    <Compile Include="FurlQueryStringParser.fs" />
     <Compile Include="FurlParser.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
