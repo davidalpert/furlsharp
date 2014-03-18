@@ -4,65 +4,92 @@ using System.Linq;
 
 namespace Furlstrong.Tests.OMDictionary
 {
-    public class OMDict<TKey, TValue>
-        where TKey : IComparable<TKey>
+    public class OMDict
     {
-        private List<KeyValuePair<TKey, TValue>> _pairs;
+        private List<KeyValuePair<string, string>> _pairs;
 
-        public OMDict(params Tuple<TKey, TValue>[] pairs)
+        public OMDict(params string[] pairs)
         {
             Load(pairs);
         }
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> Items()
+        public IEnumerable<KeyValuePair<string, string>> Items()
         {
             return _pairs.GroupBy(p => p.Key)
-                         .Select(g => new KeyValuePair<TKey, TValue>(g.Key, g.First().Value));
+                         .Select(g => new KeyValuePair<string, string>(g.Key, g.First().Value));
         }
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> AllItems()
+        public IEnumerable<KeyValuePair<string, string>> AllItems()
         {
             return _pairs;
         }
 
-        public TValue Get(TKey key)
+        public string Get(string key)
         {
             var firstPair = _pairs.FirstOrDefault(p => p.Key.Equals(key));
             return firstPair.Value;
         }
 
-        public IEnumerable<TValue> GetList(TKey key)
+        public IEnumerable<string> GetList(string key)
         {
             return _pairs.Where(p => p.Key.Equals(key)).Select(p => p.Value);
         }
 
-        public void Load(params Tuple<TKey, TValue>[] pairs)
+        public void Load(params string[] args)
         {
-            _pairs = pairs.Select(t => new KeyValuePair<TKey, TValue>(t.Item1, t.Item2))
-                          .ToList();
+            _pairs = PairUp(args).ToList();
         }
 
-        public void Update(params Tuple<TKey, TValue>[] pairs)
+        private IEnumerable<KeyValuePair<string, string>> PairUp(string[] items)
         {
-            foreach (var tuple in pairs)
+            var result = new List<KeyValuePair<string, string>>();
+            for (var i = 0; i+1 < items.Length; i += 2)
             {
-                var existingPair = _pairs.FirstOrDefault(p => p.Key.Equals(tuple.Item1));
-                if (default(KeyValuePair<TKey, TValue>).Equals(existingPair))
+                result.Add(new KeyValuePair<string, string>(items[i],items[i+1]));
+            }
+
+            return result;
+        }
+
+        public void Update(params string[] args)
+        {
+            foreach (var pair in PairUp(args))
+            {
+                if (_pairs.Any(p => p.Key == pair.Key))
                 {
+                    var existingPair = _pairs.First(p => p.Key == pair.Key);
                     var index = _pairs.IndexOf(existingPair);
-                    _pairs[index] = new KeyValuePair<TKey, TValue>(existingPair.Key, tuple.Item2);
+                    _pairs[index] = pair;
                 }
                 else
                 {
-                    _pairs.Add(new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2));
+                    _pairs.Add(pair);
                 }
             }
         }
 
-        public void UpdateAll(params Tuple<TKey, TValue>[] pairs)
+        public void UpdateAll(params string[] args)
         {
-            _pairs = pairs.Select(t => new KeyValuePair<TKey, TValue>(t.Item1, t.Item2))
-                          .ToList();
+            var pairs = PairUp(args);
+            var replaced = new List<KeyValuePair<string, string>>();
+
+            foreach (var pair in pairs)
+            {
+                var q = _pairs.Where(p => p.Key == pair.Key && replaced.Contains(p) == false)
+                              .ToArray();
+
+                if (q.Any())
+                {
+                    var existing = q.First();
+                    var index = _pairs.IndexOf(existing);
+                    _pairs[index] = pair;
+                    replaced.Add(pair);
+                }
+                else
+                {
+                    _pairs.Add(pair);
+                }
+            }
         }
     }
 }

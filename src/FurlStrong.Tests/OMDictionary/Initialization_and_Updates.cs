@@ -42,43 +42,37 @@ namespace Furlstrong.Tests.OMDictionary
         [Test]
         public void Nomenclature()
         {
-            var omd = new OMDict<int, int>(
-                Tuple.Create(1, 1),
-                Tuple.Create(2, 2),
-                Tuple.Create(1, 11)
-                );
+            var omd = new OMDict("1", "1",
+                                 "2", "2",
+                                 "1", "11");
 
             Assert.AreEqual("[(1, 1), (2, 2)]", omd.Items().FormatForApprovals());
 
             Assert.AreEqual("[(1, 1), (2, 2), (1, 11)]", omd.AllItems().FormatForApprovals());
 
-            Assert.AreEqual(1, omd.Get(1));
+            Assert.AreEqual("1", omd.Get("1"));
 
-            CollectionAssert.AreEqual(new[] {1, 11}, omd.GetList(1));
+            CollectionAssert.AreEqual(new[] {"1", "11"}, omd.GetList("1"));
         }
 
         [Test]
         public void Initialization_and_Updates()
         {
             //omdict objects can be initialized from a dictionary or a list of key:value items.
-            var omd = new OMDict<int,int>();
+            var omd = new OMDict();
 
             Assert.AreEqual("[]", omd.AllItems().FormatForApprovals());
 
-            omd = new OMDict<int, int>(
-                Tuple.Create(1, 1),
-                Tuple.Create(2, 2),
-                Tuple.Create(3, 3)
-                );
+            omd = new OMDict("1", "1",
+                             "2", "2",
+                             "3", "3");
 
             Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApprovals());
 
-            omd = new OMDict<int, int>(
-                Tuple.Create(1, 1),
-                Tuple.Create(2, 2),
-                Tuple.Create(3, 3),
-                Tuple.Create(1, 1)
-                );
+            omd = new OMDict("1", "1",
+                             "2", "2",
+                             "3", "3",
+                             "1", "1");
 
             Assert.AreEqual("[(1, 1), (2, 2), (3, 3), (1, 1)]", omd.AllItems().FormatForApprovals());
         }
@@ -86,43 +80,38 @@ namespace Furlstrong.Tests.OMDictionary
         [Test]
         public void Load_can_be_used_to_reinitialize_an_omdic()
         {
-            var omd = new OMDict<int, int>();
+            var omd = new OMDict();
 
-            omd.Load(Tuple.Create(4, 4), Tuple.Create(5, 5));
+            omd.Load("4", "4", "5", "5");
             Assert.AreEqual("[(4, 4), (5, 5)]", omd.AllItems().FormatForApprovals());
 
-            omd = new OMDict<int, int>(
-                Tuple.Create(1, 1),
-                Tuple.Create(2, 2),
-                Tuple.Create(3, 3)
-                );
+            omd = new OMDict("1", "1",
+                             "2", "2",
+                             "3", "3");
             Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApprovals());
 
-            omd.Load(Tuple.Create(6, 6), Tuple.Create(6, 6));
+            omd.Load("6", "6",
+                     "6", "6");
             Assert.AreEqual("[(6, 6), (6, 6)]", omd.AllItems().FormatForApprovals());
         }
 
         [Test]
         public void Update_updates_the_dictionary_values_in_sequence()
         {
-            var omd = new OMDict<int, string>();
-            omd.Update(
-                Tuple.Create(1, "1"),
-                Tuple.Create(2, "2"),
-                Tuple.Create(1, "11"),
-                Tuple.Create(2, "22")
-                );
+            var omd = new OMDict();
+            omd.Update("1", "1",
+                       "2", "2",
+                       "1", "11",
+                       "2", "22");
 
             Assert.AreEqual("[(1, 11), (2, 22)]", omd.Items().FormatForApprovals());
 
             Assert.AreEqual("[(1, 11), (2, 22)]", omd.AllItems().FormatForApprovals());
 
-            omd.UpdateAll(
-                Tuple.Create(2,"replaced"),
-                Tuple.Create(1,"replaced"),
-                Tuple.Create(2,"added"),
-                Tuple.Create(1,"added")
-                );
+            omd.UpdateAll("2", "replaced",
+                          "1", "replaced",
+                          "2", "added",
+                          "1", "added");
 
             Assert.AreEqual("[(1, replaced), (2, replaced), (2, added), (1, added)]", omd.AllItems().FormatForApprovals());
         }
