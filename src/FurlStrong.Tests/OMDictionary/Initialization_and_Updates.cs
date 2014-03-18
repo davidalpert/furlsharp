@@ -95,6 +95,12 @@ namespace Furlstrong.Tests.OMDictionary
             Assert.AreEqual("[(6, 6), (6, 6)]", omd.AllItems().FormatForApprovals());
         }
 
+        /// <summary>
+        /// Update() updates the dictionary with items, one item per key.
+        /// 
+        /// UpdateAll() upates the dictionary with all items from the params,
+        /// preserving key order, then adds remaining keys to the end.
+        /// </summary>
         [Test]
         public void Update_updates_the_dictionary_values_in_sequence()
         {
@@ -115,66 +121,57 @@ namespace Furlstrong.Tests.OMDictionary
 
             Assert.AreEqual("[(1, replaced), (2, replaced), (2, added), (1, added)]", omd.AllItems().FormatForApprovals());
         }
+
+        /// <summary>
+        /// If *key* has multiple values, 
+        /// only the first value is returned.
+        /// </summary>
+        [Test]
+        public void Indexer_get_behaves_like_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "not me");
+
+            Assert.AreEqual("1", omd["1"]);
+        }
+
+        /// <summary>
+        /// If *key* has multiple values, 
+        /// they will all be deleted and 
+        /// replaced by *value*.
+        /// </summary>
+        [Test]
+        public void Indexer_set_behaves_like_dictionary()
+        {
+            var omd = new OMDict("1", "deleted",
+                                 "1", "deleted");
+
+            omd["1"] = "1";
+
+            Assert.AreEqual("1", omd["1"]);
+
+            Assert.AreEqual("[(1, 1)]", omd.AllItems().FormatForApprovals());
+        }
+
+        /// <summary>
+        /// If *key* has multiple values, 
+        /// all of them will be deleted.
+        /// </summary>
+        [Test]
+        public void Indexer_remove_key_behaves_like_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "1");
+
+            omd.Remove("1");
+
+            Assert.AreEqual("[]", omd.AllItems().FormatForApprovals());
+        }
     }
 
     /*
 
-
-### Initialization and Updates
-
-__update([mapping])__ updates the dictionary with items from __mapping__, one
-item per key like
-[dict.update([mapping])](http://docs.python.org/library/stdtypes.html#dict.update).
-__updateall([mapping])__ updates the dictionary with all items from
-__mapping__. Key order is preserved - existing keys are updated with values from
-__mapping__ before any new items are added.
-
-```pycon
->>> omd = omdict()
->>> omd.update([(1,1), (2,2), (1,11), (2,22)])
->>> omd.items()
-[(1, 11), (2, 22)]
->>> omd.allitems()
-[(1, 11), (2, 22)]
->>> omd.updateall([(2,'replaced'), (1,'replaced'), (2,'added'), (1,'added')])
->>> omd.allitems()
-[(1, 'replaced'), (2, 'replaced'), (2, 'added'), (1, 'added')]
-```
-
-
 ### Getters, Setters, and Adders
-
-__omd[key]__ behaves identically to
-[dict\[key\]](http://docs.python.org/library/stdtypes.html#dict). If __key__ has
-multiple values, only its first value is returned.
-
-```pycon
->>> omd = omdict([(1,1), (1,'not me')])
->>> omd[1]
-1
-```
-
-__omd[key] = value__ behaves identically to [dict\[key\] =
-value](http://docs.python.org/library/stdtypes.html#dict). If __key__ has
-multiple values, they will all be deleted and replaced with __value__.
-
-```pycon
->>> omd = omdict([(1,'deleted'), (1,'deleted')])
->>> omd[1] = 1
->>> omd[1]
-1
-```
-
-__del omd[key]__ behaves identically to [del
-dict\[key\]](http://docs.python.org/library/stdtypes.html#dict). If __key__ has
-multiple values, all of them will be deleted.
-
-```pycon
->>> omd = omdict([(1,1), (1,11)])
->>> del omd[1]
->>> omd.allitems()
-[]
-```
 
 __get(key, default=None)__ behaves identically to [dict.get(key,
 default=None)](http://docs.python.org/library/stdtypes.html#dict.get). If

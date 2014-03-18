@@ -13,6 +13,12 @@ namespace Furlstrong.Tests.OMDictionary
             Load(pairs);
         }
 
+        public string this[string key]
+        {
+            get { return Get(key); }
+            set { Set(key, value); }
+        }
+
         public IEnumerable<KeyValuePair<string, string>> Items()
         {
             return _pairs.GroupBy(p => p.Key)
@@ -28,6 +34,31 @@ namespace Furlstrong.Tests.OMDictionary
         {
             var firstPair = _pairs.FirstOrDefault(p => p.Key.Equals(key));
             return firstPair.Value;
+        }
+
+        public void Set(string key, string value)
+        {
+            var newPair = new KeyValuePair<string, string>(key, value);
+            var q = _pairs.Where(p => p.Key == key).ToArray();
+            if (q.Any())
+            {
+                var first = q.First();
+                var index = _pairs.IndexOf(first);
+                _pairs[index] = newPair;
+
+                var r = q.Skip(1).ToArray();
+                _pairs.RemoveAll(r.Contains);
+            }   
+            else
+            {
+                _pairs.Add(newPair);
+            }
+        }
+
+        public void Remove(string key)
+        {
+            var toRemove = _pairs.Where(p => p.Key == key).ToArray();
+            _pairs.RemoveAll(toRemove.Contains);
         }
 
         public IEnumerable<string> GetList(string key)
