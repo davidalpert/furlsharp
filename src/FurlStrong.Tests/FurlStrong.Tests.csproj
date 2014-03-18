@@ -54,12 +54,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basics.cs" />
+    <Compile Include="OMDictionary\Initialization_and_Updates.cs" />
+    <Compile Include="OMDictionary\OMDict.cs" />
     <Compile Include="Paths.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="FurlAPI.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -1,106 +1,228 @@
-﻿using NUnit.Framework;
+﻿
+# furl API
 
-namespace Furlstrong.Tests
-{
-    /// <summary>
-    /// URL queries in furl are Query objects that have params, 
-    /// a one dimensional ordered multivalue dictionary of 
-    /// query keys and values. 
-    /// 
-    /// Query keys and values in params are maintained decoded 
-    /// and all interaction with params should take place with 
-    /// decoded strings.
-    /// </summary>
-    [TestFixture]
-    public class Query
-    {
-        [Test]
-        public void URL_queries_in_Furl_are_FurlQuery_objects_that_have_params()
-        {
-            var f = new Furl("http://www.google.com/?one=1&two=2");
-            Assert.AreEqual("http://www.google.com/?one=1&two=2",f.Url);
+### Basics
 
-            Assert.AreEqual("one=1&two=2", f.Query.ToString());
+furl objects let you access and modify the components of a URL
 
-            Assert.AreEqual("1", f.Query["one"]);
-            Assert.AreEqual("2", f.Query["two"]);
-        }
+```
+scheme://username:password@host:port/path?query#fragment
+```
 
-        [Test]
-        public void URL_query_keys_and_values_are_maintained_decoded()
-        {
-            var f = new Furl("http://www.google.com/?on%20e=1%202&two=2");
-            Assert.AreEqual("http://www.google.com/?on%20e=1%202&two=2",f.Url);
+ * __scheme__ is the scheme string (all lowercase) or None. None means no
+   scheme. An empty string means a protocol relative URL, like
+   `//www.google.com`.
+ * __username__ is the username string for authentication.
+ * __password__ is the password string for authentication with __username__.
+ * __host__ is the domain name, IPv4, or IPv6 address as a string. Domain names
+  are all lowercase.
+ * __port__ is an integer or None. A value of None means no port specified and
+  the default port for the given __scheme__ should be inferred, if possible.
+ * __path__ is a Path object comprised of path segments.
+ * __query__ is a Query object comprised of query arguments.
+ * __fragment__ is a Fragment object comprised of a Path and Query object
+   separated by an optional '?' separator.
 
-            Assert.AreEqual("1 2", f.Query["on e"]);
-            Assert.AreEqual("2", f.Query["two"]);
-        }
 
-        [Test]
-        public void Query_is_a_one_dimensional_ordered_multivalue_dictionary_method_that_maintains_parity_with_the_NameValueCollection_that_backs_HttpRequest_QueryString()
-        {
-            var f = new Furl("http://google.com/");
+### Scheme, Username, Password, Host, Port, and Network Location
 
-            f.Query = FurlQuery.Parse("silicon=14&iron=26&inexorable%20progress=vae%20victus");
+__scheme__, __username__, __password__, and __host__ are strings or
+None. __port__ is an integer or None.
 
-            f.Query["inexorable progress"] = null;
+```pycon
+>>> f = furl('http://user:pass@www.google.com:99/')
+>>> f.scheme, f.username, f.password, f.host, f.port
+('http', 'user', 'pass', 'www.google.com', 99)
+```
 
-            f.Query["magnesium"] = "12";
+furl infers the default port for common schemes.
 
-            Assert.AreEqual("silicon=14&iron=26&magnesium=12", f.Query.ToString());
-        }
+```pycon
+>>> f = furl('https://secure.google.com/')
+>>> f.port
+443
 
-        [Test]
-        public void Query_can_also_store_multiple_values_for_the_same_key()
-        {
-            var f = new Furl("http://www.google.com/?space=jams&space=slams");
+>>> f = furl('unknown://www.google.com/')
+>>> print f.port
+None
+```
 
-            Assert.Inconclusive("Pending the implementation of an ordered, multivalue dictionary.");
-            // single access returns the first
-            Assert.AreEqual("jams", f.Query["space"]);
+__netloc__ is the string combination of __username__, __password__, __host__,
+and __port__, not including __port__ if it is None or the default port for the
+provided __scheme__.
 
-            // list access returns the whole list
-            CollectionAssert.AreEqual(new [] {"jams", "slams"}, f.Query.GetList("space"));
+```pycon
+>>> furl('http://www.google.com/').netloc
+'www.google.com'
 
-            f.Query.AddList("repeated", "1", "2", "3");
+>>> furl('http://www.google.com:99/').netloc
+'www.google.com:99'
 
-            Assert.AreEqual("space=jams&space=slams&repeated=1&repeated=2&repeated=3", f.Query.ToString());
+>>> furl('http://user:pass@www.google.com:99/').netloc
+'user:pass@www.google.com:99'
+```
 
-            Assert.AreEqual("slams", f.Query.PopValue("space"));
 
-            Assert.AreEqual("2", f.Query.PopValue("repeated", "2"));
+### Path
 
-            Assert.AreEqual("space=jams&repeated=1&repeated=3", f.Query.ToString());
-        }
-        /*
-         * 
-This makes sense -- URL queries are inherently one dimensional. Query values cannot have subvalues.
+URL paths in furl are Path objects that have __segments__, a list of zero or
+more path segments that can be manipulated directly. Path segments in
+__segments__ are maintaned decoded and all interaction with __segments__ should
+take place with decoded segment strings.
 
-See the omdict documentation for more information on interacting with the ordered multivalue dictionary params.
+```pycon
+>>> f = furl('http://www.google.com/a/larg%20ish/path')
+>>> f.path
+Path('/a/larg ish/path')
+>>> f.path.segments
+['a', 'larg ish', 'path']
+>>> str(f.path)
+'/a/larg%20ish/path'
+```
 
-Parameters
+##### Manipulation
 
-To produce an empty query argument like http://sprop.su/?param=, use an empty string as the parameter value.
+```pycon
+>>> f.path.segments = ['a', 'new', 'path', '']
+>>> str(f.path)
+'/a/new/path/'
 
->>> f = furl('http://sprop.su')
->>> f.args['param'] = ''
+>>> f.path = 'o/hi/there/with%20some%20encoding/'
+>>> f.path.segments
+['o', 'hi', 'there', 'with some encoding', '']
+>>> str(f.path)
+'/o/hi/there/with%20some%20encoding/'
+
 >>> f.url
-'http://sprop.su/?param='
-To produce an empty query argument without a trailing =, use None as the parameter value.
+'http://www.google.com/o/hi/there/with%20some%20encoding/'
 
->>> f = furl('http://sprop.su')
->>> f.args['param'] = None
+>>> f.path.segments = ['segments', 'are', 'maintained', 'decoded', '^`<>[]"#/?']
+>>> str(f.path)
+'/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F'
+```
+
+A path that starts with '/' is considered absolute, and a Path can be absolute
+or not as specified (or set) by the boolean attribute __isabsolute__. URL Paths
+have a special restriction: they must be absolute if a __netloc__ (username,
+password, host, and/or port) is present. This restriction exists because a URL
+path must start with '/' to separate itself from a __netloc__. Fragment Paths
+have no such limitation and __isabsolute__ and can be be True or False without
+restriction.
+
+Here's a URL Path example that illustrates how __isabsolute__ becomes True and
+read-only in the presence of a __netloc__.
+
+```pycon
+>>> f = furl('/url/path')
+>>> f.path.isabsolute
+True
+>>> f.path.isabsolute = False
 >>> f.url
-'http://sprop.su/?param'
-encode(delimeter='&') can be used to encode query strings with delimeters like ;.
+'url/path'
+>>> f.host = 'arc.io'
+>>> f.url
+'arc.io/url/path'
+>>> f.path.isabsolute
+True
+>>> f.path.isabsolute = False
+Traceback (most recent call last):
+  ...
+AttributeError: Path.isabsolute is True and read-only for URLs with a netloc (a username, password, host, and/or port). URL paths must be absolute if a netloc exists.
+>>> f.url
+'arc.io/url/path'
+```
 
->>> f.query = 'space=jams&woofs=squeeze+dog'
->>> f.query.encode()
-'space=jams&woofs=squeeze+dog'
->>> f.query.encode(';')
-'space=jams;woofs=squeeze+dog'
-         * 
-         * 
+Here's a fragment Path example.
+
+```pycon
+>>> f = furl('http://www.google.com/#/absolute/fragment/path/')
+>>> f.fragment.path.isabsolute
+True
+>>> f.fragment.path.isabsolute = False
+>>> f.url
+'http://www.google.com/#absolute/fragment/path/'
+>>> f.fragment.path.isabsolute = True
+>>> f.url
+'http://www.google.com/#/absolute/fragment/path/'
+```
+
+A path that ends with '/' is considered a directory, and otherwise considered a
+file. The Path attribute __isdir__ returns True if the path is a directory,
+False otherwise. Conversely, the attribute __isfile__ returns True if the path
+is a file, False otherwise.
+
+```pycon
+>>> f = furl('http://www.google.com/a/directory/')
+>>> f.path.isdir
+True
+>>> f.path.isfile
+False
+
+>>> f = furl('http://www.google.com/a/file')
+>>> f.path.isdir
+False
+>>> f.path.isfile
+True
+```
+
+A path can be normalized with __normalize()__. __normalize()__ returns the Path
+object for method chaining.
+
+```pycon
+>>> f = furl('http://www.google.com////a/./b/lolsup/../c/')
+>>> f.path.normalize()
+>>> f.url
+'http://www.google.com/a/b/c/'
+```
+
+
+### Query
+
+URL queries in furl are Query objects that have __params__, a one dimensional
+[ordered multivalue dictionary](https://github.com/gruns/orderedmultidict) of
+query keys and values. Query keys and values in __params__ are maintained
+decoded and all interaction with __params__ should take place with decoded
+strings.
+
+```pycon
+>>> f = furl('http://www.google.com/?one=1&two=2')
+>>> f.query
+Query('one=1&two=2')
+>>> f.query.params
+omdict1D([('one', '1'), ('two', '2')])
+>>> str(f.query)
+'one=1&two=2'
+```
+
+furl objects and Fragment objects (covered below) contain a Query object, and
+__args__ is provided as a shortcut on these objects to access __query.params__.
+
+```pycon
+>>> f = furl('http://www.google.com/?one=1&two=2')
+>>> f.query.params
+omdict1D([('one', '1'), ('two', '2')])
+>>> f.args
+omdict1D([('one', '1'), ('two', '2')])
+>>> f.args is f.query.params
+True
+```
+
+##### Manipulation
+
+__params__ is a one dimensional
+[ordered multivalue dictionary](https://github.com/gruns/orderedmultidict) that
+maintains method parity with Python's standard dictionary.
+
+```pycon
+>>> f.query = 'silicon=14&iron=26&inexorable%20progress=vae%20victus'
+>>> f.query.params
+omdict1D([('silicon', '14'), ('iron', '26'), ('inexorable progress', 'vae victus')])
+>>> del f.args['inexorable progress']
+>>> f.args['magnesium'] = '12'
+>>> f.args
+omdict1D([('silicon', '14'), ('iron', '26'), ('magnesium', '12')])
+```
+
 __params__ can also store multiple values for the same key because it's a
 multivalue dictionary.
 
@@ -395,6 +517,3 @@ same as clicking on the provided relative or absolute URL in a browser.
 >>> f.join('unknown://www.yahoo.com/new/url/').url
 'unknown://www.yahoo.com/new/url/'
 ```
-         */
-    }
-}
