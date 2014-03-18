@@ -32,11 +32,21 @@ namespace Furlstrong.Tests.OMDictionary
 
         public string Get(string key)
         {
-            var firstPair = _pairs.FirstOrDefault(p => p.Key.Equals(key));
-            return firstPair.Value;
+            return GetList(key).FirstOrDefault();
         }
 
-        public void Set(string key, string value)
+        public string Get(string key, string defaultValue)
+        {
+            return Get(key) ?? defaultValue;
+        }
+
+        public IEnumerable<string> GetList(string key, params string[] defaultValues)
+        {
+            var result = _pairs.Where(p => p.Key == key).Select(p => p.Value);
+            return result.Any() ? result : defaultValues;
+        }
+
+        public OMDict Set(string key, string value)
         {
             var newPair = new KeyValuePair<string, string>(key, value);
             var q = _pairs.Where(p => p.Key == key).ToArray();
@@ -53,17 +63,41 @@ namespace Furlstrong.Tests.OMDictionary
             {
                 _pairs.Add(newPair);
             }
+
+            return this;
+        }
+
+        public OMDict SetList(string key, params string[] values)
+        {
+            var replaced = new List<KeyValuePair<string, string>>();
+
+            var pairs = values.Select(v => new KeyValuePair<string, string>(key, v))
+                              .ToArray();
+            foreach (var pair in pairs)
+            {
+                var q = _pairs.Where(p => p.Key == pair.Key && replaced.Contains(p) == false)
+                              .ToArray();
+
+                if (q.Any())
+                {
+                    var existing = q.First();
+                    var index = _pairs.IndexOf(existing);
+                    _pairs[index] = pair;
+                    replaced.Add(pair);
+                }
+                else
+                {
+                    _pairs.Add(pair);
+                }
+            }
+
+            return this;
         }
 
         public void Remove(string key)
         {
             var toRemove = _pairs.Where(p => p.Key == key).ToArray();
             _pairs.RemoveAll(toRemove.Contains);
-        }
-
-        public IEnumerable<string> GetList(string key)
-        {
-            return _pairs.Where(p => p.Key.Equals(key)).Select(p => p.Value);
         }
 
         public void Load(params string[] args)

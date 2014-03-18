@@ -167,49 +167,65 @@ namespace Furlstrong.Tests.OMDictionary
 
             Assert.AreEqual("[]", omd.AllItems().FormatForApprovals());
         }
+
+        [Test]
+        public void Get_gets_the_first_value_and_can_provide_a_default()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "2");
+
+            Assert.AreEqual("1", omd.Get("1"));
+
+            Assert.AreEqual("sup", omd.Get("404", "sup"));
+        }
+
+        [Test]
+        public void GetList_is_like_Get_except_it_returns_the_list_of_values_associated_with_key()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "2", "2");
+
+            CollectionAssert.AreEqual(new [] {"1", "11"}, omd.GetList("1"));
+
+            CollectionAssert.AreEqual(new [] {"sup"}, omd.GetList("404", "sup"));
+        }
+
+        [Test]
+        public void Set_is_identical_in_function_to_the_indexer_Set_and_is_chainable()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111");
+
+            omd.Set("1", "1");
+
+            CollectionAssert.AreEqual(new [] {"1"}, omd.GetList("1"));
+
+            omd.Set("1", "11").Set("2","2");
+
+            CollectionAssert.AreEqual("[(1, 11), (2, 2)]", omd.AllItems().FormatForApprovals());
+        }
+
+        [Test]
+        public void SetList_sets_a_list_of_values_for_key_and_is_chainable()
+        {
+            var omd = new OMDict("1", "1",
+                                 "2", "2");
+
+            omd.SetList("1", "replaced", "appended");
+
+            Assert.AreEqual("[(1, replaced), (2, 2), (1, appended)]", omd.AllItems().FormatForApprovals());
+
+            omd.SetList("1", "onlyme");
+
+            Assert.AreEqual("[(1, onlyme), (2, 2)]", omd.AllItems().FormatForApprovals());
+        }
     }
 
     /*
 
 ### Getters, Setters, and Adders
-
-__get(key, default=None)__ behaves identically to [dict.get(key,
-default=None)](http://docs.python.org/library/stdtypes.html#dict.get). If
-__key__ has multiple values, only its first value is returned.
-
-```pycon
->>> omd = omdict([(1,1), (1,2)])
->>> omd.get(1)
-1
->>> omd.get(404, 'sup')
-'sup'
-```
-
-__getlist(key, default=[])__ is like get(key, default=None) except it returns
-the list of values assocaited with __key__.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (2,2)])
->>> omd.getlist(1)
-[1, 11]
->>> omd.getlist(2)
-[2]
->>> omd.getlist(404, 'sup')
-'sup'
-```
-
-__set(key, value=None)__ sets __key__'s value to __value__. Identical in
-function to omd[key] = value. Returns the omdict object for method chaining.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111)])
->>> omd.set(1, 1)
->>> omd.getlist(1)
-[1]
->>> omd.set(1, 11).set(2, 2)
->>> omd.allitems()
-[(1, 11), (2, 2)]
-```
 
 __setlist(key, values=[])__ sets __key__'s list of values to __values__. Returns
 the omdict object for method chaining.
