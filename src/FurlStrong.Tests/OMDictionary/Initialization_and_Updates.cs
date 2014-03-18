@@ -158,7 +158,7 @@ namespace Furlstrong.Tests.OMDictionary
         /// all of them will be deleted.
         /// </summary>
         [Test]
-        public void Indexer_remove_key_behaves_like_dictionary()
+        public void Remove_key_behaves_like_dictionary()
         {
             var omd = new OMDict("1", "1",
                                  "1", "1");
