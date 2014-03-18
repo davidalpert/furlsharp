@@ -95,6 +95,9 @@ namespace Furlstrong.Tests.OMDictionary
 
         public OMDict SetList(string key, params string[] values)
         {
+            var pairs = values.Select(v => new KeyValuePair<string, string>(key, v));
+
+            UpdateAll(pairs, true);
             /*
             var numberOfNewValues = values.Length;
             var numberOfExistingValues = _items.ContainsKey(key) ? _items[key].Values.Count : 0;
@@ -178,10 +181,17 @@ namespace Furlstrong.Tests.OMDictionary
 
         public void UpdateAll(params string[] args)
         {
+            var pairs = PairUp(args);
+
+            UpdateAll(pairs);
+        }
+
+        private void UpdateAll(IEnumerable<KeyValuePair<string, string>> pairs, bool removeExtra = false)
+        {
             var updatedIndexes = new Dictionary<string, int>();
             var maxIndex = MaxIndex();
 
-            foreach (var pair in PairUp(args))
+            foreach (var pair in pairs)
             {
                 if (updatedIndexes.ContainsKey(pair.Key) == false)
                 {
@@ -197,12 +207,26 @@ namespace Furlstrong.Tests.OMDictionary
                     updatedIndexes[pair.Key] = indexToUpdate; // so that we don't update it again.
                 }
                 else
-                { 
+                {
                     _items[pair.Key] = new SortedDictionary<int, string>();
                     var indexToUpdate = (maxIndex++) + 1;
                     _items[pair.Key][indexToUpdate] = pair.Value;
                     updatedIndexes[pair.Key] = indexToUpdate;
                 }
+            }
+
+            if (removeExtra)
+            {
+                updatedIndexes.Keys.ForEach(key =>
+                    {
+                        var list = _items[key];
+                        var maxUpdatedIndex = updatedIndexes[key];
+                        var itemsToRemove = list.Keys
+                                                .Where(index => index > maxUpdatedIndex)
+                                                .ToArray();
+
+                        itemsToRemove.ForEach(index => list.Remove(index));
+                    });
             }
         }
 
