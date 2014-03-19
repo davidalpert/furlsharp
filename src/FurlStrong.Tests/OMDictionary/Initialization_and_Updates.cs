@@ -7,12 +7,12 @@ namespace Furlstrong.Tests.OMDictionary
 {
     public static class ApprovalHelpers
     {
-        public static string FormatForApprovals<TKey, TValue>(this IEnumerable<Tuple<TKey, TValue>> items)
+        public static string FormatForApproval<TKey, TValue>(this IEnumerable<Tuple<TKey, TValue>> items)
         {
             return string.Format("[{0}]", string.Join(", ", items.Select(p => p.ToString())));
         }
 
-        public static string FormatForApprovals<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
+        public static string FormatForApproval<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
         {
             return string.Format("[{0}]", string.Join(", ", items.Select(p => string.Format("({0}, {1})", p.Key, p.Value))));
         }
@@ -46,14 +46,16 @@ namespace Furlstrong.Tests.OMDictionary
                                  "2", "2",
                                  "1", "11");
 
-            Assert.AreEqual("[(1, 1), (2, 2)]", omd.Items().FormatForApprovals());
+            Assert.AreEqual("[(1, 1), (2, 2)]", omd.Items().FormatForApproval());
 
-            Assert.AreEqual("[(1, 1), (2, 2), (1, 11)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, 1), (2, 2), (1, 11)]", omd.AllItems().FormatForApproval());
 
             Assert.AreEqual("1", omd.Get("1"));
 
             CollectionAssert.AreEqual(new[] {"1", "11"}, omd.GetList("1"));
         }
+
+        #region Initialization and updates
 
         [Test]
         public void Initialization_and_Updates()
@@ -61,20 +63,20 @@ namespace Furlstrong.Tests.OMDictionary
             //omdict objects can be initialized from a dictionary or a list of key:value items.
             var omd = new OMDict();
 
-            Assert.AreEqual("[]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[]", omd.AllItems().FormatForApproval());
 
             omd = new OMDict("1", "1",
                              "2", "2",
                              "3", "3");
 
-            Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApproval());
 
             omd = new OMDict("1", "1",
                              "2", "2",
                              "3", "3",
                              "1", "1");
 
-            Assert.AreEqual("[(1, 1), (2, 2), (3, 3), (1, 1)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, 1), (2, 2), (3, 3), (1, 1)]", omd.AllItems().FormatForApproval());
         }
 
         [Test]
@@ -83,16 +85,16 @@ namespace Furlstrong.Tests.OMDictionary
             var omd = new OMDict();
 
             omd.Load("4", "4", "5", "5");
-            Assert.AreEqual("[(4, 4), (5, 5)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(4, 4), (5, 5)]", omd.AllItems().FormatForApproval());
 
             omd = new OMDict("1", "1",
                              "2", "2",
                              "3", "3");
-            Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApproval());
 
             omd.Load("6", "6",
                      "6", "6");
-            Assert.AreEqual("[(6, 6), (6, 6)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(6, 6), (6, 6)]", omd.AllItems().FormatForApproval());
         }
 
         /// <summary>
@@ -110,17 +112,21 @@ namespace Furlstrong.Tests.OMDictionary
                        "1", "11",
                        "2", "22");
 
-            Assert.AreEqual("[(1, 11), (2, 22)]", omd.Items().FormatForApprovals());
+            Assert.AreEqual("[(1, 11), (2, 22)]", omd.Items().FormatForApproval());
 
-            Assert.AreEqual("[(1, 11), (2, 22)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, 11), (2, 22)]", omd.AllItems().FormatForApproval());
 
             omd.UpdateAll("2", "replaced",
                           "1", "replaced",
                           "2", "added",
                           "1", "added");
 
-            Assert.AreEqual("[(1, replaced), (2, replaced), (2, added), (1, added)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, replaced), (2, replaced), (2, added), (1, added)]", omd.AllItems().FormatForApproval());
         }
+
+        #endregion
+
+        #region Indexing
 
         /// <summary>
         /// If *key* has multiple values, 
@@ -150,7 +156,7 @@ namespace Furlstrong.Tests.OMDictionary
 
             Assert.AreEqual("1", omd["1"]);
 
-            Assert.AreEqual("[(1, 1)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, 1)]", omd.AllItems().FormatForApproval());
         }
 
         /// <summary>
@@ -165,8 +171,12 @@ namespace Furlstrong.Tests.OMDictionary
 
             omd.Remove("1");
 
-            Assert.AreEqual("[]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[]", omd.AllItems().FormatForApproval());
         }
+
+        #endregion
+
+        #region Getters, Setters, Adders
 
         [Test]
         public void Get_gets_the_first_value_and_can_provide_a_default()
@@ -204,7 +214,7 @@ namespace Furlstrong.Tests.OMDictionary
 
             omd.Set("1", "11").Set("2","2");
 
-            CollectionAssert.AreEqual("[(1, 11), (2, 2)]", omd.AllItems().FormatForApprovals());
+            CollectionAssert.AreEqual("[(1, 11), (2, 2)]", omd.AllItems().FormatForApproval());
         }
 
         [Test]
@@ -215,242 +225,280 @@ namespace Furlstrong.Tests.OMDictionary
 
             omd.SetList("1", "replaced", "appended");
 
-            Assert.AreEqual("[(1, replaced), (2, 2), (1, appended)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, replaced), (2, 2), (1, appended)]", omd.AllItems().FormatForApproval());
 
             omd.SetList("1", "onlyme");
 
-            Assert.AreEqual("[(1, onlyme), (2, 2)]", omd.AllItems().FormatForApprovals());
+            Assert.AreEqual("[(1, onlyme), (2, 2)]", omd.AllItems().FormatForApproval());
         }
+
+        /// <summary>
+        /// If key is in the dictionary, return its value. If not, insert key with a 
+        /// value of default and return default. Default defaults to null.
+        /// </summary>
+        [Test]
+        public void SetDefault()
+        {
+            var omd = new OMDict("1", "1");
+
+            Assert.AreEqual("1", omd.SetDefault("1"));
+
+            omd.SetDefault("2", null);
+
+            Assert.AreEqual("[(1, 1), (2, )]", omd.AllItems().FormatForApproval());
+        }
+
+        [Test]
+        public void SetDefaultList_is_like_SetDefault_except_a_list_of_values_is_adopted()
+        {
+            var omd = new OMDict("1", "1");
+
+            CollectionAssert.AreEqual(new[] {"1"}, omd.SetDefaultList("1"));
+
+            CollectionAssert.AreEqual(new[] {"2", "22"}, omd.SetDefaultList("2", "2", "22"));
+
+            Assert.AreEqual("[(1, 1), (2, 2), (2, 22)]", omd.AllItems().FormatForApproval());
+
+            CollectionAssert.AreEqual(new string[] {null}, omd.SetDefaultList("3"));
+
+            Assert.AreEqual(null, omd["3"]);
+        }
+
+        [Test]
+        public void Add_adds_value_to_the_list_of_values_for_key_and_is_chainable()
+        {
+            var omd = new OMDict();
+            omd.Add("1", "1");
+
+            Assert.AreEqual("[(1, 1)]", omd.AllItems().FormatForApproval());
+
+            omd.Add("1", "11").Add("2", "2");
+
+            Assert.AreEqual("[(1, 1), (1, 11), (2, 2)]", omd.AllItems().FormatForApproval());
+        }
+
+        [Test]
+        public void AddList_adds_the_values_in_list_to_key_and_is_chainable()
+        {
+            var omd = new OMDict("1", "1");
+            omd.AddList("1", "11", "111");
+
+            Assert.AreEqual("[(1, 1), (1, 11), (1, 111)]", 
+                            omd.AllItems().FormatForApproval());
+
+            omd.AddList("2", "2").AddList("3", "3", "33");
+
+            Assert.AreEqual("[(1, 1), (1, 11), (1, 111), (2, 2), (3, 3), (3, 33)]", 
+                            omd.AllItems().FormatForApproval());
+        }
+
+        #endregion
+
+        #region Groups and Group Iteration
+
+        [Test]
+        public void Items_accepts_an_optional_key_to_filter_the_items()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.Items().FormatForApproval());
+
+            Assert.AreEqual("[(1, 1), (1, 11), (1, 111)]", omd.Items("1").FormatForApproval());
+        }
+
+        [Test]
+        public void Keys_returns_an_iterator_over_keys()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            CollectionAssert.AreEqual(new[] {"1", "2", "3"}, omd.Keys);
+        }
+
+        [Test]
+        public void Values_iterates_over_values_with_an_optional_key_focus()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            CollectionAssert.AreEqual(new[] {"1", "2", "3"}, omd.Values());
+
+            CollectionAssert.AreEqual(new[] {"1", "11", "111"}, omd.Values("1"));
+        }
+
+        [Test]
+        public void Lists_returns_an_iterator_over_valuelist_items()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            CollectionAssert.AreEqual(new[]
+                {
+                    new [] {"1", "11", "111"},
+                    new [] {"2"},
+                    new [] {"3"}
+                }, 
+                omd.Lists());
+        }
+
+        [Test]
+        public void AllKeys_returns_a_list_of_the_keys_of_every_item_in_the_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            CollectionAssert.AreEqual(new[] {"1", "1", "1", "2", "3"},
+                                      omd.AllKeys);
+        }
+
+        [Test]
+        public void AllValues_returns_a_list_of_the_values_of_every_item_in_the_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            CollectionAssert.AreEqual(new[] {"1", "11", "111", "2", "3"},
+                                      omd.AllValues);
+        }
+
+        #endregion
+
+        #region Pops
+
+        [Test]
+        public void Pop_pops_a_set_of_keyvalues_out_of_the_dictionary_returning_only_the_first_value()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.AreEqual("1", omd.Pop("1"));
+
+            Assert.AreEqual("[(2, 2), (3, 3)]", omd.AllItems().FormatForApproval());
+        }
+
+        [Test]
+        public void Pop_can_provide_a_default_value_in_case_key_is_not_in_the_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.AreEqual("sup", omd.Pop("404", "sup"));
+        }
+
+        [Test]
+        public void Pop_raises_an_InvalidOperationException_if_key_is_not_in_the_dictionary_and_default_is_not_provided()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.Throws<InvalidOperationException>(() => omd.Pop("404"));
+        }
+
+        [Test]
+        public void PopList_pops_a_set_of_keyvalues_out_of_the_dictionary_returning_all_the_values()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            CollectionAssert.AreEqual(new [] {"1", "11", "111"}, omd.PopList("1"));
+
+            Assert.AreEqual("[(2, 2), (3, 3)]", omd.AllItems().FormatForApproval());
+
+            CollectionAssert.AreEqual(new [] {"2"}, omd.PopList("2"));
+
+            Assert.AreEqual("[(3, 3)]", omd.AllItems().FormatForApproval());
+        }
+
+        [Test]
+        public void PopList_can_provide_a_default_value_in_case_key_is_not_in_the_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.AreEqual(new [] {"sup"}, omd.PopList("nonexistant key", "sup"));
+        }
+
+        [Test]
+        public void PopList_raises_an_InvalidOperationException_if_key_is_not_in_the_dictionary_and_default_is_not_provided()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.Throws<InvalidOperationException>(() => omd.PopList("nonexistant key"));
+        }
+
+        [Test]
+        public void PopValue()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3",
+                                 "2", "22");
+
+            Assert.AreEqual("111", omd.PopValue("1"));
+
+            Assert.AreEqual("[(1, 1), (1, 11), (2, 2), (3, 3), (2, 22)]",
+                            omd.AllItems().FormatForApproval());
+
+            Assert.AreEqual("1", omd.PopValue("1", last:false));
+
+            Assert.AreEqual("22", omd.PopValue("2", "2"));
+
+            Assert.AreEqual("[(1, 11), (2, 2), (3, 3)]",
+                            omd.AllItems().FormatForApproval());
+
+            Assert.AreEqual("11", omd.PopValue("1", "11"));
+
+            Assert.AreEqual("[(2, 2), (3, 3)]",
+                            omd.AllItems().FormatForApproval());
+
+            Assert.AreEqual("sup", omd.PopValue("not a key", "sup"));
+        }
+
+        #endregion
     }
 
     /*
-
-### Getters, Setters, and Adders
-
-__setlist(key, values=[])__ sets __key__'s list of values to __values__. Returns
-the omdict object for method chaining.
-
-```pycon
->>> omd = omdict([(1,1), (2,2)])
->>> omd.setlist(1, ['replaced', 'appended'])
->>> omd.allitems()
-[(1, 'replaced'), (2, 2), (1, 'appended')]
->>> omd.setlist(1, ['onlyme'])
->>> omd.allitems()
-[(1, 'onlyme'), (2, 2)]
-```
-
-__setdefault(key, default=None)__ behaves identically to [dict.setdefault(key,
-default=None)](http://docs.python.org/library/stdtypes.html#dict.setdefault).
-
-```pycon
->>> omd = omdict([(1,1)])
->>> omd.setdefault(1)
-1
->>> omd.setdefault(2, None)
->>> omd.allitems()
-[(1, 1), (2, None)]
-```
-
-__setdefaultlist(key, defaultlist=[None])__ is like setdefault(key, default=None)
-except a list of values for __key__ is adopted. If __defaultlist__ isn't
-provided, __key__'s value becomes None.
-
-```pycon
->>> omd = omdict([(1,1)])
->>> omd.setdefaultlist(1)
-[1]
->>> omd.setdefaultlist(2, [2, 22])
-[2, 22]
->>> omd.allitems()
-[(1, 1), (2, 2), (2, 22)]
->>> omd.setdefaultlist(3)
-[None]
->>> print omd[3]
-None
-```
-
-__add(key, value=None)__ adds __value__ to the list of values for __key__.
-Returns the omdict object for method chaining.
-
-```pycon
->>> omd = omdict()
->>> omd.add(1, 1)
->>> omd.allitems()
-[(1, 1)]
->>> omd.add(1, 11).add(2, 2)
->>> omd.allitems()
-[(1, 1), (1, 11), (2, 2)]
-```
-
-__addlist(key, valuelist=[])__ adds the values in __valuelist__ to the list of
-values for __key__. Returns the omdict object for method chaining.
-
-```pycon
->>> omd = omdict([(1,1)])
->>> omd.addlist(1, [11, 111])
->>> omd.allitems()
-[(1, 1), (1, 11), (1, 111)]
->>> omd.addlist(2, [2]).addlist(3, [3, 33])
->>> omd.allitems()
-[(1, 1), (1, 11), (1, 111), (2, 2), (3, 3), (3, 33)]
-```
-
-
-### Groups and Group Iteration
-
-__items([key])__ behaves identically to
-[dict.items()](http://docs.python.org/library/stdtypes.html#dict.items) except
-an optional __key__ parameter has been added. If __key__ is provided, only items
-with key __key__ are returned. __iteritems([key])__ returns an iterator over
-items(key). KeyError is raised if __key__ is provided and not in the dictionary.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.items()
-[(1, 1), (2, 2), (3, 3)]
->>> omd.items(1)
-[(1, 1), (1, 11), (1, 111)]
-```
-
-__keys()__ behaves identically to
-[dict.keys()](http://docs.python.org/library/stdtypes.html#dict.keys).
-__iterkeys()__ returns an iterator over keys().
-
-__values([key])__ behaves identically to
-[dict.values()](http://docs.python.org/library/stdtypes.html#dict.values) except
-an optional __key__ parameter has been added. If __key__ is provided, only the
-values for __key__ are returned. __itervalues([key])__ returns an iterator over
-values(key). KeyError is raised if __key__ is provided and not in the
-dictionary.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.values()
-[1, 2, 3]
->>> omd.values(1)
-[1, 11, 111]
-```
-
-__lists()__ returns a list comprised of the lists of values associated with each
-dictionary key. __iterlists()__ returns and iterator over lists().
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.lists()
-[[1, 11, 111], [2], [3]]
-```
-
-__listitems()__ returns a list of key:valuelist items. __iterlistitems()__
-returns an iterator over listitems().
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3), (2,22)])
->>> omd.listitems()
-[(1, [1, 11, 111]), (2, [2, 22]), (3, [3])]
-```
-
-__allitems([key])__ returns a list of every item in the dictionary, including
-multiple items with the same key. If __key__ is provided and in the dictionary,
-only items with key __key__ are returned . KeyError is raised if __key__ is
-provided and not in the dictionary. __iterallitems([key])__ returns an iterator
-over allitems(key).
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.allitems()
-[(1, 1), (1, 11), (1, 111), (2, 2), (3, 3)]
-```
-
-__allkeys()__ returns a list of the keys of every item in the dictionary.
-__iterallkeys()__ returns an iterator over allkeys().
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.allkeys()
-[1, 1, 1, 2, 3]
-```
-
-__allvalues()__ returns a list of the values of every item in the dictionary.
-__iterallvalues()__ returns an iterator over allvalues().
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.allvalues()
-[1, 11, 111, 2, 3]
-```
-
-
-### Pops
-
-__pop(key[, default])__ behaves identically to [dict.pop(key\[,
-default\])](http://docs.python.org/library/stdtypes.html#dict.pop). If __key__
-has multiple values, the first value is returned but all items with key __key__
-are popped. KeyError is raised if __default__ isn't provided and __key__ isn't
-in the dictionary.
-
-```pycon
->>> omd = omdict([(1,1), (2,2), (1,11)])
->>> omd.pop(1)
-1
->>> omd.allitems()
-[(2, 2)]
-```
-
-__poplist(key[, default])__ is like pop(key[, default]) except it returns the
-list of values for __key__. KeyError is raised if __default__ isn't provided and
-__key__ isn't in the dictionary.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.poplist(1)
-[1, 11, 111]
->>> omd.allitems()
-[(2, 2), (3, 3)]
->>> omd.poplist(2)
-[2]
->>> omd.allitems()
-[(3, 3)]
->>> omd.poplist('nonexistent key', 'sup')
-'sup'
-```
-
-__popvalue(key[, value, default], last=True)__ pops a value for __key__.
-
-If __value__ is not provided, the first or last value for __key__ is popped and
-returned.
-
-If __value__ is provided, the first or last (__key__,__value__) item is popped
-and __value__ is returned.
-
-If __key__ no longer has any values after a popvalue() call, __key__ is removed
-from the dictionary. __default__ is returned if provided and __key__ isn't in
-the dictionary. KeyError is raised if __default__ isn't provided and __key__
-isn't in the dictionary. ValueError is raised if __value__ is provided but isn't a
-value for __key__.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3), (2,22)])
->>> omd.popvalue(1)
-111
->>> omd.allitems()
-[(1, 1), (1, 11), (2, 2), (3, 3), (2, 22)]
->>> omd.popvalue(1, last=False)
-1
->>> omd.allitems()
-[(1, 11), (2, 2), (3, 3), (2, 22)]
->>> omd.popvalue(2, 2)
-2
->>> omd.allitems()
-[(1, 11), (3, 3), (2, 22)]
->>> omd.popvalue(1, 11)
-11
->>> omd.allitems()
-[(3, 3), (2, 22)]
->>> omd.popvalue('not a key', default='sup')
-'sup'
-```
-
+     * 
 __popitem(fromall=False, last=True)__ pops and returns a key:value item.
 
 If __fromall__ is False, items()[0] is popped if __last__ is False or

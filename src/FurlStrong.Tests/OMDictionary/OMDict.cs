@@ -19,7 +19,6 @@ namespace Furlstrong.Tests.OMDictionary
         }
 
         private Dictionary<string, SortedDictionary<int, string>> _items;
-        private List<KeyValuePair<string, string>> _pairs;
 
         public OMDict(params string[] pairs)
         {
@@ -27,23 +26,44 @@ namespace Furlstrong.Tests.OMDictionary
             Load(pairs);
         }
 
+        public IEnumerable<string> Keys { get { return _items.Keys; } }
+
+        public IEnumerable<string> Values(string key = null)
+        {
+            return Items(key).Select(v => v.Value);
+        }
+
+        public IEnumerable<string> AllKeys { get { return AllItems().Select(x => x.Key); } }
+
+        public IEnumerable<string> AllValues { get { return AllItems().Select(x => x.Value); } }
+
         public string this[string key]
         {
             get { return Get(key); }
             set { Set(key, value); }
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Items()
+        public IEnumerable<KeyValuePair<string, string>> Items(string key = null)
         {
-            return _items.Select(k => new KeyValuePair<string, string>(k.Key,k.Value.First().Value));
+            return key.IsNotNullOrWhiteSpace()
+                       ? AllItems(key)
+                       : _items.Select(k => new KeyValuePair<string, string>(k.Key, k.Value.First().Value));
         }
 
-        public IEnumerable<KeyValuePair<string, string>> AllItems()
+        public IEnumerable<KeyValuePair<string, string>> AllItems(string key = null)
         {
+            var items = key.IsNotNullOrWhiteSpace()
+                            ? _items.Where(i => i.Key == key)
+                            : _items;
             return
-                _items.SelectMany(k => k.Value.Select(v => Tuple.Create(v.Key, k.Key, v.Value)))
+                items.SelectMany(k => k.Value.Select(v => Tuple.Create(v.Key, k.Key, v.Value)))
                       .OrderBy(x => x.Item1)
                       .Select(x => new KeyValuePair<string, string>(x.Item2, x.Item3));
+        }
+
+        public IEnumerable<IEnumerable<string>> Lists()
+        {
+            return _items.Select(k => k.Value.OrderBy(v => v.Key).Select(v => v.Value));
         }
 
         public string Get(string key, string defaultValue)
@@ -72,7 +92,8 @@ namespace Furlstrong.Tests.OMDictionary
         {
             return _items.Count == 0
                        ? -1
-                       : _items.Max(k => k.Value.Keys.Max());
+                       : _items.Where(i => i.Value.Count > 0)
+                               .Max(k => k.Value.Keys.Max());
         }
 
         public OMDict Set(string key, string value)
@@ -98,55 +119,122 @@ namespace Furlstrong.Tests.OMDictionary
             var pairs = values.Select(v => new KeyValuePair<string, string>(key, v));
 
             UpdateAll(pairs, true);
-            /*
-            var numberOfNewValues = values.Length;
-            var numberOfExistingValues = _items.ContainsKey(key) ? _items[key].Values.Count : 0;
-            var numberOfReplacedValues = 0;
+           
+            return this;
+        }
 
-            var targetList = _items.ContainsKey(key) 
-                ? _items[key] 
-                : new SortedDictionary<int, string>();
+        public string SetDefault(string key, string value = null)
+        {
+            if (_items.ContainsKey(key))
+                return _items[key].First().Value;
 
-            var replaced = new List<int>();
-
-            //var pairs = values.Select(v => new KeyValuePair<string, string>(key, v)) .ToArray();
-
-            foreach (var newValue in values)
-            {
-                var q = _pairs.Where(p => p.Key == pair.Key && replaced.Contains(p) == false)
-                              .ToArray();
-
-                if (_items.ContainsKey(key))
+            var nextAvailableIndex = MaxIndex() + 1;
+            _items[key] = new SortedDictionary<int, string>
                 {
+                    {nextAvailableIndex, value}
+                };
 
-                }
-                else
-                {
-                    
-                }
+            return value;
+        }
 
-                if (q.Any())
-                {
-                    var existing = q.First();
-                    var index = _pairs.IndexOf(existing);
-                    _pairs[index] = pair;
-                    replaced.Add(pair);
-                }
-                else
-                {
-                    _pairs.Add(pair);
-                }
-            }
-             */
+        public IEnumerable<string> SetDefaultList(string key, params string[] values)
+        {
+            if (_items.ContainsKey(key))
+                return _items[key].Select(x => x.Value);
+
+            _items[key] = new SortedDictionary<int, string>();
+
+            values = values.Length > 0
+                         ? values
+                         : new string[] {null};
+
+            var nextAvailableIndex = MaxIndex() + 1;
+            values.ForEach(x => _items[key].Add(nextAvailableIndex++, x));
+
+            return values;
+        }
+
+        public OMDict Add(string key, string value = null)
+        {
+            var nextAvailableIndex = MaxIndex() + 1;
+
+            if (_items.ContainsKey(key) == false)
+                _items[key] = new SortedDictionary<int, string>();
+
+            _items[key].Add(nextAvailableIndex, value);
 
             return this;
+        }
+
+        public OMDict AddList(string key, params string[] values)
+        {
+            var nextAvailableIndex = MaxIndex() + 1;
+
+            if (_items.ContainsKey(key) == false)
+                _items[key] = new SortedDictionary<int, string>();
+
+            values = values.Length > 0
+                         ? values
+                         : new string[] {null};
+
+            var dict = _items[key];
+            values.ForEach(v => dict.Add(nextAvailableIndex++, v));
+
+            return this;
+        }
+
+        public string Pop(string key, string defaultValue = null)
+        {
+            if (_items.ContainsKey(key) == false && defaultValue == null) 
+                throw new InvalidOperationException("Must provide a defaultValue when key is not present in the dictionary.");
+
+            var value = Get(key, defaultValue);
+
+            Remove(key);
+
+            return value;
+        }
+
+        public IEnumerable<string> PopList(string key, params string[] defaultValues)
+        {
+            if (_items.ContainsKey(key) == false && defaultValues.Length == 0) 
+                throw new InvalidOperationException("Must provide a defaultValue when key is not present in the dictionary.");
+
+            var values = GetList(key, defaultValues)
+                                .ToArray(); // force enumeration before removing the list of values.
+
+            Remove(key);
+
+            return values;
+        }
+
+        public string PopValue(string key, string defaultValue = null, bool last = true)
+        {
+            if (_items.ContainsKey(key) == false)
+            {
+                if (defaultValue == null)
+                    throw new InvalidOperationException(
+                        "Must provide a default value when key is not present in the dictionary.");
+
+                return defaultValue;
+            }
+
+            var list = _items[key];
+            if (list.Values.Any())
+            {
+                var lastItem = last ? list.Last() : list.First();
+                list.Remove(lastItem.Key);
+                return lastItem.Value;
+            }
+
+            return defaultValue;
         }
 
         public void Remove(string key)
         {
             if (_items.ContainsKey(key))
             {
-                _items[key].Clear();
+                _items[key].Clear();    
                 _items.Remove(key);
             }
         }
@@ -156,8 +244,8 @@ namespace Furlstrong.Tests.OMDictionary
             _items.Clear();
             var x = PairUp(args).Select((pair, index) => new
                 {
-                    Key = pair.Key,
-                    Value = pair.Value,
+                    pair.Key, 
+                    pair.Value,
                     Index = index
                 });
             foreach (var item in x)
