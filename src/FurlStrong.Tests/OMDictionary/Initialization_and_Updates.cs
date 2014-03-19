@@ -494,115 +494,135 @@ namespace Furlstrong.Tests.OMDictionary
             Assert.AreEqual("sup", omd.PopValue("not a key", "sup"));
         }
 
+        [Test]
+        public void PopItem_pops_and_returns_a_key_value_item()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.AreEqual("(3, 3)", omd.PopItem());
+            Assert.AreEqual("(2, 2)", omd.PopItem());
+            Assert.AreEqual("(1, 1)", omd.PopItem());
+            Assert.AreEqual("[]", omd.AllItems().FormatForApproval());
+
+            omd = new OMDict("1", "1",
+                             "1", "11",
+                             "1", "111",
+                             "2", "2",
+                             "3", "3");
+
+            /*  If __fromall__ is False, items()[0] is popped if __last__ is False or
+                items()[-1] is popped if __last__ is True. All remaining items with the same key
+                are removed.
+
+                If __fromall__ is True, allitems()[0] is popped if __last__ is False or
+                allitems()[-1] is popped if __last__ is True. No other remaining items are
+                removed, even if they have the same key.
+             */
+
+            Assert.AreEqual("(1, 1)", omd.PopItemFromAll(last:false));
+            Assert.AreEqual("(1, 11)", omd.PopItemFromAll(last:false));
+            Assert.AreEqual("(3, 3)", omd.PopItemFromAll(last:true));
+            Assert.AreEqual("(1, 111)", omd.PopItemFromAll(last:false));
+        }
+
+        /// <summary>
+        /// __poplistitem([key], last=True)__ pops and returns a key:valuelist item
+        /// comprised of a key and that key's list of values. If __last__ is False, a
+        /// key:valuelist item comprised of keys()[0] and its list of values is popped and
+        /// returned. If __last__ is True, a key:valuelist item comprised of keys()[-1] and
+        /// its list of values is popped and returned. KeyError is raised if the dictionary
+        /// is empty or if __key__ is provided and not in the dictionary.
+        /// </summary>
+        [Test]
+        public void PopListItem(string key = null, bool last = true)
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            var pair = omd.PopListItem(last: true);
+            Assert.AreEqual("3", pair.Key);
+            CollectionAssert.AreEqual(new [] {"3"}, pair.Value);
+
+            pair = omd.PopListItem(last: false);
+            Assert.AreEqual("1", pair.Key);
+            CollectionAssert.AreEqual(new [] {"1", "11", "111"}, pair.Value);
+        }
+
+        #endregion
+
+        #region Miscellaneous
+
+        [Test]
+        public void Copy_returns_a_shallow_copy()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "2", "2",
+                                 "3", "3");
+
+            var copy = omd.Copy();
+
+            Assert.AreEqual(omd, copy);
+        }
+
+        [Test]
+        public void Clear_clears_all_items()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "2", "2",
+                                 "3", "3");
+
+            var copy = omd.Clear();
+
+            Assert.AreEqual("[]", omd.AllItems().FormatForApproval());
+        }
+
+        [Test]
+        public void Length_returns_the_number_of_keys_in_the_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "2", "2",
+                                 "1", "11");
+
+            Assert.AreEqual(2, omd.Length);
+        }
+
+        [Test]
+        public void Size_returns_the_number_of_all_items_in_the_dictionary()
+        {
+            var omd = new OMDict("1", "1",
+                                 "2", "2",
+                                 "1", "11");
+
+            Assert.AreEqual(4, omd.Size);
+        }
+
+        [Test]
+        public void Reverse_reverses_the_items_and_is_chainable()
+        {
+            var omd = new OMDict("1", "1",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.AreEqual("[(1, 1), (2, 2), (3, 3)]", omd.AllItems().FormatForApproval());
+
+            omd.Reverse();
+
+            Assert.AreEqual("[(3, 3), (2, 2), (1, 1)]", omd.AllItems().FormatForApproval());
+
+            omd.Reverse().Reverse();
+
+            Assert.AreEqual("[(3, 3), (2, 2), (1, 1)]", omd.AllItems().FormatForApproval());
+        }
+
         #endregion
     }
-
-    /*
-     * 
-__popitem(fromall=False, last=True)__ pops and returns a key:value item.
-
-If __fromall__ is False, items()[0] is popped if __last__ is False or
-items()[-1] is popped if __last__ is True. All remaining items with the same key
-are removed.
-
-If __fromall__ is True, allitems()[0] is popped if __last__ is False or
-allitems()[-1] is popped if __last__ is True. No other remaining items are
-removed, even if they have the same key.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.popitem()
-(3, 3)
->>> omd.popitem(fromall=False, last=False)
-(1, 1)
->>> omd.popitem(fromall=False, last=False)
-(2, 2)
->>> omd.allitems()
-[]
-
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.popitem(fromall=True, last=False)
-(1, 1)
->>> omd.popitem(fromall=True, last=False)
-(1, 11)
->>> omd.popitem(fromall=True, last=True)
-(3, 3)
->>> omd.popitem(fromall=True, last=False)
-(1, 111)
-```
-
-__poplistitem([key], last=True)__ pops and returns a key:valuelist item
-comprised of a key and that key's list of values. If __last__ is False, a
-key:valuelist item comprised of keys()[0] and its list of values is popped and
-returned. If __last__ is True, a key:valuelist item comprised of keys()[-1] and
-its list of values is popped and returned. KeyError is raised if the dictionary
-is empty or if __key__ is provided and not in the dictionary.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (1,111), (2,2), (3,3)])
->>> omd.poplistitem(last=True)
-(3, [3])
->>> omd.poplistitem(last=False)
-(1, [1, 11, 111])
-```
-
-
-### Miscellaneous
-
-__copy()__ returns a shallow copy of the dictionary.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (2,2), (3,3)])
->>> copy = omd.copy()
->>> omd == copy
-True
->>> isinstance(copy, omdict)
-True
-```
-
-__clear()__ clears all items.
-
-```pycon
->>> omd = omdict([(1,1), (1,11), (2,2), (3,3)])
->>> omd.clear()
->>> omd.allitems()
-[]
-```
-
-__len(omd)__ returns the number of keys in the dictionary, identical to
-[len(dict)](http://docs.python.org/library/stdtypes.html#dict).
-
-```pycon
->>> omd = omdict([(1, 1), (2, 2), (1, 11)])
->>> len(omd)
-2
-```
-
-__size()__ returns the total number of items in the dictionary.
-
-```pycon
->>> omd = omdict([(1, 1), (1, 11), (2, 2), (1, 111)])
->>> omd.size()
-4
-```
-
-__reverse()__ reverses the order of all items in the dictionary and returns the
-omdict object for method chaining.
-
-```pycon
->>> omd = omdict([(1, 1), (2, 2), (3, 3)])
->>> omd.allitems()
-[(1, 1), (2, 2), (3, 3)]
->>> omd.reverse()
->>> omd.allitems()
-[(3, 3), (2, 2), (1, 1)]
-```
-
-__fromkeys(keys[, value])__ behaves identically to [dict.fromkeys(key\[,
-value\])](http://docs.python.org/library/stdtypes.html#dict.fromkeys).
-
-__has_key(key)__ behaves identically to
-[dict.has_key(key)](http://docs.python.org/library/stdtypes.html#dict.has_key),
-but use `key in omd` instead of `omd.has_key(key)` where possible.
-     */
 }

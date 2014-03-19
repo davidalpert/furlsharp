@@ -230,6 +230,16 @@ namespace Furlstrong.Tests.OMDictionary
             return defaultValue;
         }
 
+        public KeyValuePair<string, string> PopItem()
+        {
+            return default(KeyValuePair<string, string>);
+        }
+
+        public KeyValuePair<string, string> PopItemFromAll(bool last = true)
+        {
+            return default(KeyValuePair<string, string>);
+        }
+
         public void Remove(string key)
         {
             if (_items.ContainsKey(key))
