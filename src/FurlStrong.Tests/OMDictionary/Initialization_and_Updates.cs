@@ -495,6 +495,30 @@ namespace Furlstrong.Tests.OMDictionary
         }
 
         [Test]
+        public void Indexer_with_int_provides_key_value_pair_by_zero_based_position()
+        {
+            var omd = new OMDict("1", "1",
+                                 "1", "11",
+                                 "1", "111",
+                                 "2", "2",
+                                 "3", "3");
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                {
+                    var x = omd[-1];
+                });
+            Assert.AreEqual("[1, 1]", omd[0].ToString());
+            Assert.AreEqual("[1, 11]", omd[1].ToString());
+            Assert.AreEqual("[1, 111]", omd[2].ToString());
+            Assert.AreEqual("[2, 2]", omd[3].ToString());
+            Assert.AreEqual("[3, 3]", omd[4].ToString());
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                {
+                    var x = omd[5];
+                });
+        }
+
+        [Test]
         public void PopItem_pops_and_returns_a_key_value_item()
         {
             var omd = new OMDict("1", "1",
@@ -503,9 +527,9 @@ namespace Furlstrong.Tests.OMDictionary
                                  "2", "2",
                                  "3", "3");
 
-            Assert.AreEqual("(3, 3)", omd.PopItem());
-            Assert.AreEqual("(2, 2)", omd.PopItem());
-            Assert.AreEqual("(1, 1)", omd.PopItem());
+            Assert.AreEqual("[3, 3]", omd.PopItem().ToString());
+            Assert.AreEqual("[2, 2]", omd.PopItem().ToString());
+            Assert.AreEqual("[1, 1]", omd.PopItem().ToString());
             Assert.AreEqual("[]", omd.AllItems().FormatForApproval());
 
             omd = new OMDict("1", "1",
@@ -523,10 +547,10 @@ namespace Furlstrong.Tests.OMDictionary
                 removed, even if they have the same key.
              */
 
-            Assert.AreEqual("(1, 1)", omd.PopItemFromAll(last:false));
-            Assert.AreEqual("(1, 11)", omd.PopItemFromAll(last:false));
-            Assert.AreEqual("(3, 3)", omd.PopItemFromAll(last:true));
-            Assert.AreEqual("(1, 111)", omd.PopItemFromAll(last:false));
+            Assert.AreEqual("[1, 1]", omd.PopItemFromAll(last:false).ToString());
+            Assert.AreEqual("[1, 11]", omd.PopItemFromAll(last:false).ToString());
+            Assert.AreEqual("[3, 3]", omd.PopItemFromAll(last:true).ToString());
+            Assert.AreEqual("[1, 111]", omd.PopItemFromAll(last:false).ToString());
         }
 
         /// <summary>
@@ -569,7 +593,9 @@ namespace Furlstrong.Tests.OMDictionary
 
             var copy = omd.Copy();
 
-            Assert.AreEqual(omd, copy);
+            Assert.AreNotSame(omd, copy);
+
+            CollectionAssert.AreEqual(omd.AllItems(), copy.AllItems());
         }
 
         [Test]
@@ -580,7 +606,7 @@ namespace Furlstrong.Tests.OMDictionary
                                  "2", "2",
                                  "3", "3");
 
-            var copy = omd.Clear();
+            omd.Clear();
 
             Assert.AreEqual("[]", omd.AllItems().FormatForApproval());
         }
@@ -600,7 +626,8 @@ namespace Furlstrong.Tests.OMDictionary
         {
             var omd = new OMDict("1", "1",
                                  "2", "2",
-                                 "1", "11");
+                                 "1", "11",
+                                 "1", "111");
 
             Assert.AreEqual(4, omd.Size);
         }

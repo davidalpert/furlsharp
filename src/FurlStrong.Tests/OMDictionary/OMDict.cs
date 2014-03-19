@@ -37,10 +37,23 @@ namespace Furlstrong.Tests.OMDictionary
 
         public IEnumerable<string> AllValues { get { return AllItems().Select(x => x.Value); } }
 
+        public int Length {
+            get { return _items.Keys.Count; }
+        }
+
+        public int Size {
+            get { return _items.Sum(itemList => itemList.Value.Count); }
+        }
+
         public string this[string key]
         {
             get { return Get(key); }
             set { Set(key, value); }
+        }
+
+        public KeyValuePair<string, string> this[int index]
+        {
+            get { return AllItems().ElementAt(index); }
         }
 
         public IEnumerable<KeyValuePair<string, string>> Items(string key = null)
@@ -232,12 +245,18 @@ namespace Furlstrong.Tests.OMDictionary
 
         public KeyValuePair<string, string> PopItem()
         {
-            return default(KeyValuePair<string, string>);
+            var lastKey = AllKeys.Last();
+            var lastKeysFirstValue = Pop(lastKey);
+            return new KeyValuePair<string, string>(lastKey, lastKeysFirstValue);
         }
 
         public KeyValuePair<string, string> PopItemFromAll(bool last = true)
         {
-            return default(KeyValuePair<string, string>);
+            var keyToPop = last ? Keys.Last() : Keys.First();
+
+            var poppedValue = PopValue(keyToPop, last: last);
+
+            return new KeyValuePair<string, string>(keyToPop, poppedValue);
         }
 
         public void Remove(string key)
@@ -337,6 +356,38 @@ namespace Furlstrong.Tests.OMDictionary
             }
 
             return result;
+        }
+
+        public OMDict Reverse()
+        {
+            var currentItems = AllItems().ToArray();
+
+            Clear();
+
+            UpdateAll(currentItems.Reverse());
+
+            return this;
+        }
+
+        public void Clear()
+        {
+            var keys = _items.Keys.ToArray();
+
+            keys.ForEach(Remove);
+        }
+
+        public OMDict Copy()
+        {
+            var newOmd = new OMDict();
+
+            AllItems().ForEach(pair => newOmd.Add(pair.Key, pair.Value));
+
+            return newOmd;
+        }
+
+        public KeyValuePair<string,string> PopListItem(bool last)
+        {
+            return default(KeyValuePair<string, string>);
         }
     }
 
