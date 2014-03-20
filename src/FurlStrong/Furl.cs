@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Web;
+using FurlStrong;
 using FurlStrong.AOP;
 using FurlStrong.Parsing.AST;
 using Microsoft.FSharp.Collections;
@@ -126,7 +127,9 @@ namespace Furlstrong
     {
         public static string Encode(string raw)
         {
-            return HttpUtility.UrlEncode(raw).Replace("+", "%20");
+            return raw == null 
+                ? null 
+                : HttpUtility.UrlEncode(raw).Replace("+", "%20");
         }
 
         public static string Decode(string encoded)
@@ -312,7 +315,7 @@ namespace Furlstrong
         }
     }
 
-    public class FurlQuery : NameValueCollection
+    public class FurlQuery : OMDict
     {
         public FurlQuery()
         {
@@ -324,7 +327,7 @@ namespace Furlstrong
             {
                 var key = FurlUtility.Decode(param.Item1);
                 var value = FurlUtility.Decode(param.Item2.Value);
-                this[key] = value;
+                Add(key, value);
             }
         }
 
@@ -335,17 +338,16 @@ namespace Furlstrong
 
         public string Serialize(char separator = '=')
         {
-            if (HasKeys() == false)
+            if (Keys.Any() == false)
             {
                 return null;
             }
 
             var sb = new StringBuilder();
-            var n = Count;
-            for(var i = 0;i < n;i++)
+            foreach (var item in AllItems())
             {
-                var key = FurlUtility.Encode(GetKey(i));
-                var value = FurlUtility.Encode(Get(i));
+                var key = FurlUtility.Encode(item.Key);
+                var value = FurlUtility.Encode(item.Value);
                 if (value == null)
                 {
                     sb.Append(key);
@@ -357,37 +359,6 @@ namespace Furlstrong
                 sb.Append('&');
             }
             return sb.ToString().TrimEnd('&');
-        }
-
-        public new string this[string name]
-        {
-            get { return base[name]; }
-            set
-            {
-                if (value == null)
-                    Remove(name);
-                else
-                    base[name] = value;
-            }
-        }
-
-        public IEnumerable<string> GetList(string key)
-        {
-            return null;
-        }
-
-        public void AddList(string key, params string[] values)
-        {
-        }
-
-        public string PopValue(string key)
-        {
-            return null;
-        }
-
-        public string PopValue(string key, string value)
-        {
-            return null;
         }
 
         public static FurlQuery Parse(string querystring)

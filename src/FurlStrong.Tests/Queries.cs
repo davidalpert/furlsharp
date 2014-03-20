@@ -47,6 +47,12 @@ namespace Furlstrong.Tests
 
             f.Query["magnesium"] = "12";
 
+            Assert.AreEqual("silicon=14&iron=26&inexorable%20progress&magnesium=12", f.Query.ToString());
+
+            f.Query.Remove("inexorable progress");
+
+            f.Query["magnesium"] = "12";
+
             Assert.AreEqual("silicon=14&iron=26&magnesium=12", f.Query.ToString());
         }
 
@@ -55,7 +61,6 @@ namespace Furlstrong.Tests
         {
             var f = new Furl("http://www.google.com/?space=jams&space=slams");
 
-            Assert.Inconclusive("Pending the implementation of an ordered, multivalue dictionary.");
             // single access returns the first
             Assert.AreEqual("jams", f.Query["space"]);
 
@@ -72,6 +77,27 @@ namespace Furlstrong.Tests
 
             Assert.AreEqual("space=jams&repeated=1&repeated=3", f.Query.ToString());
         }
+
+        [Test]
+        public void Empty_strings_produce_empty_arguments()
+        {
+            var f = new Furl("http://sprop.su");
+
+            f.Query["param"] = "";
+
+            Assert.AreEqual("http://sprop.su/?param=", f.Url);
+        }
+
+        [Test]
+        public void Null_values_produce_empty_arguments_without_the_trailing_slash()
+        {
+            var f = new Furl("http://sprop.su");
+
+            f.Query["param"] = null;
+
+            Assert.AreEqual("http://sprop.su/?param", f.Url);
+        }
+    }
         /*
          * 
 This makes sense -- URL queries are inherently one dimensional. Query values cannot have subvalues.
@@ -396,5 +422,4 @@ same as clicking on the provided relative or absolute URL in a browser.
 'unknown://www.yahoo.com/new/url/'
 ```
          */
-    }
 }

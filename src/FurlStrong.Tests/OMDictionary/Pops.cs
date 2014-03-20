@@ -105,14 +105,14 @@ namespace Furlstrong.Tests.OMDictionary
 
             Assert.AreEqual("1", omd.PopValue("1", last: false));
 
-            Assert.AreEqual("22", omd.PopValue("2", "2"));
+            Assert.AreEqual("2", omd.PopValue("2", "2"));
 
-            Assert.AreEqual("[(1, 11), (2, 2), (3, 3)]",
+            Assert.AreEqual("[(1, 11), (3, 3), (2, 22)]",
                             omd.AllItems().FormatForApproval());
 
             Assert.AreEqual("11", omd.PopValue("1", "11"));
 
-            Assert.AreEqual("[(2, 2), (3, 3)]",
+            Assert.AreEqual("[(3, 3), (2, 22)]",
                             omd.AllItems().FormatForApproval());
 
             Assert.AreEqual("sup", omd.PopValue("not a key", "sup"));

@@ -371,6 +371,9 @@ namespace FurlStrong
         /// 
         /// If the given key has no values, <paramref name="defaultValue"/> is
         /// returned instead.
+        /// 
+        /// If <paramref name="defaultValue"/> is provided, and it exists for the 
+        /// given key, then that is the value that is popped.
         /// </summary>
         public string PopValue(string key, string defaultValue = null, bool last = true)
         {
@@ -384,7 +387,13 @@ namespace FurlStrong
             }
 
             var list = _items[key];
-            if (list.Values.Any())
+            if (defaultValue.IsNotNullOrWhiteSpace() && list.ContainsValue(defaultValue))
+            {
+                var itemToPop = list.First(x => x.Value == defaultValue);
+                list.Remove(itemToPop.Key);
+                return itemToPop.Value;
+            }
+            else if (list.Values.Any())
             {
                 var lastItem = last ? list.Last() : list.First();
                 list.Remove(lastItem.Key);
