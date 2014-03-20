@@ -54,8 +54,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basics.cs" />
+    <Compile Include="OMDictionary\OMDictApprovalHelpers.cs" />
+    <Compile Include="OMDictionary\Getters_Setters_and_Adders.cs" />
+    <Compile Include="OMDictionary\Groups_And_Group_Iteration.cs" />
+    <Compile Include="OMDictionary\Indexing.cs" />
     <Compile Include="OMDictionary\Initialization_and_Updates.cs" />
-    <Compile Include="OMDictionary\OMDict.cs" />
+    <Compile Include="OMDictionary\Miscellaneous.cs" />
+    <Compile Include="OMDictionary\Overview.cs" />
+    <Compile Include="OMDictionary\Pops.cs" />
     <Compile Include="Paths.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.cs" />
