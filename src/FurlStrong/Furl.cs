@@ -145,7 +145,7 @@ namespace Furlstrong
 
     public class Furl
     {
-        public Furl(string url)
+        public Furl(string url = null)
         {
             InitializeWith(url, this);
         }
@@ -336,7 +336,7 @@ namespace Furlstrong
             return Serialize();
         }
 
-        public string Serialize(char separator = '=')
+        public string Serialize(char delimeter = '&', char separator = '=')
         {
             if (Keys.Any() == false)
             {
@@ -356,9 +356,14 @@ namespace Furlstrong
                 {
                     sb.AppendFormat("{0}{1}{2}",key,separator,value);
                 }
-                sb.Append('&');
+                sb.Append(delimeter);
             }
-            return sb.ToString().TrimEnd('&');
+            return sb.ToString().TrimEnd(delimeter);
+        }
+
+        public string Encode(char delimeter = '&')
+        {
+            return Serialize(delimeter: delimeter);
         }
 
         public static FurlQuery Parse(string querystring)
