@@ -26,6 +26,11 @@ let private ParseAST str =
 
 let Parse str = ParseAST str //|> ASTToObjectModelVisitor.Visit
 
+let ParseFragment str = 
+    match run pfragment str with
+    | Success(result, _, _)   -> result 
+    | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
+
 let PrettyPrint a = sprintf "%A" a
 
 #if DEBUG

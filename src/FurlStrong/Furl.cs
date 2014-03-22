@@ -14,13 +14,30 @@ namespace Furlstrong
 {
     public class FurlPath
     {
+        /// <summary>
+        /// Supports implicit conversion from string[] to list of strings.
+        /// </summary>
+        public class FurlPathSegments : List<string>
+        {
+            public FurlPathSegments(IEnumerable<string> segments) 
+            {
+                if (segments != null)
+                    AddRange(segments);
+            }
+
+            public static implicit operator FurlPathSegments(string[] segments)
+            {
+                return new FurlPathSegments(segments);
+            }
+        }
+
         private string _netloc;
         private bool _isAbsolute;
 
         public FurlPath(IEnumerable<string> pathParts = null)
         {
             pathParts = pathParts ?? Enumerable.Empty<string>();
-            Segments = new List<string>(FurlUtility.Decode(pathParts));
+            Segments = new FurlPathSegments((FurlUtility.Decode(pathParts)));
         }
 
         public FurlPath(bool isAbsolute, IEnumerable<string> pathParts = null, bool hasTrailingSlash = false)
@@ -41,12 +58,12 @@ namespace Furlstrong
         {
             IsAbsolute = isAbsolute;
             pathParts = pathParts ?? Enumerable.Empty<string>();
-            Segments = new List<string>(FurlUtility.Decode(pathParts));
+            Segments = new FurlPathSegments(FurlUtility.Decode(pathParts));
 
             if (hasTrailingSlash) Segments.Add("");
         }
 
-        public List<string> Segments { get; set; }
+        public FurlPathSegments Segments { get; set; }
 
         public bool IsAbsolute
         {
@@ -85,7 +102,7 @@ namespace Furlstrong
             if (IsDirectory) 
                 normalizedSegments.Add("");
 
-            Segments = normalizedSegments;
+            Segments = new FurlPathSegments(normalizedSegments);
 
             return this;
         }
@@ -108,9 +125,9 @@ namespace Furlstrong
             return p;
         }
 
-        public static List<string> FromSegments(params string[] pathSegments)
+        public static FurlPathSegments FromSegments(params string[] pathSegments)
         {
-            return new List<string>(FurlUtility.Decode(pathSegments));
+            return new FurlPathSegments(FurlUtility.Decode(pathSegments));
         }
 
         public void UseNetloc(string netLoc)
@@ -344,6 +361,20 @@ namespace Furlstrong
 
             return sb.ToString();
         }
+
+        public Furl Copy()
+        {
+            return new Furl(Url);
+        }
+
+        public Furl Join(string newPath)
+        {
+            var f = Copy();
+            var p = FurlPath.Parse(newPath);
+            f.Path.Segments.AddRange(p.Segments);
+            f.Path = f.Path.Normalize();
+            return f;
+        }
     }
 
     public class FurlQuery : OMDict
@@ -405,6 +436,11 @@ namespace Furlstrong
 
             return p;
         }
+
+        public static implicit operator FurlQuery(string querystring)
+        {
+            return Parse(querystring);
+        }
     }
 
     public class FurlFragment
@@ -412,24 +448,48 @@ namespace Furlstrong
         public FurlFragment()
         {
             Path = new FurlPath();
+            HasSeparator = true;
         }
 
         internal FurlFragment(bool item1, ASTPath item2)
         {
             Path = new FurlPath(item1, item2);
+            HasSeparator = true;
         }
 
         public FurlPath Path { get; set; }
         public FurlQuery Query { get; set; }
-        public bool HasSeparator { get { return true; } }
+        public bool HasSeparator { get; set; }
 
         public override string ToString()
         {
             var path = Path.ToString();
             var query = Query.Serialize();
+            var separator = HasSeparator ? "?" : "";
             return query.IsNotNullOrWhiteSpace()
-                       ? path + "?" + query
+                       ? path + separator + query
                        : path;
+        }
+
+        public static implicit operator FurlFragment(string fragment)
+        {
+            if (fragment.IsNotNullOrWhiteSpace()) return new FurlFragment();
+
+            fragment = fragment.StartsWith("#") ? fragment : "#" + fragment;
+
+            // TODO: refator this duplication from the Furl.Initialize method
+            var x = FurlParser.ParseFragment(fragment);
+            var fragmentPath = x == null ? null : x.Item1;
+            var frag = fragmentPath == null
+                             ? new FurlFragment()
+                             : new FurlFragment(fragmentPath.Item1, fragmentPath.Item2);
+
+            var fragmentQuery = x == null ? null : x.Item2;
+            frag.Query = fragmentQuery == null
+                             ? new FurlQuery()
+                             : new FurlQuery(fragmentQuery.Value.Item);
+
+            return frag;
         }
     }
 
