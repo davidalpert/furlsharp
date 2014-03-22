@@ -137,6 +137,16 @@ namespace Furlstrong
 
             return this;
         }
+
+        public static implicit operator FurlPath(string path)
+        {
+            return Parse(path);
+        }
+
+        public static implicit operator FurlPath(string[] segments)
+        {
+            return new FurlPath {Segments = FromSegments(segments)};
+        }
     }
 
     public static class FurlUtility

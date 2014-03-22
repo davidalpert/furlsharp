@@ -36,7 +36,7 @@ namespace Furlstrong.Tests
             f.Path.Segments = FurlPath.FromSegments("a", "new", "path", "");
             Assert.AreEqual("/a/new/path/", f.Path.ToString());
 
-            f.Path = FurlPath.Parse("o/hi/there/with%20some%20encoding/");
+            f.Path = "o/hi/there/with%20some%20encoding/";
             
             CollectionAssert.AreEqual(
                 new[] { "o", "hi", "there", "with some encoding", ""}, f.Path.Segments
@@ -48,6 +48,16 @@ namespace Furlstrong.Tests
 
             f.Path.Segments = FurlPath.FromSegments("segments", "are", "maintained", "decoded", @"^`<>[]""#/?");
             Assert.AreEqual("/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F".ToLowerInvariant(), f.Path.ToString());
+        }
+
+        [Test]
+        public void Can_assign_a_path_from_an_array_of_strings()
+        {
+            var f = new Furl("http://www.google.com/");
+
+            f.Path = new [] {"a", "new", "path", ""};
+
+            Assert.AreEqual("/a/new/path/", f.Path.ToString());
         }
 
         [Test]

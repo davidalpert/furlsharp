@@ -34,17 +34,14 @@ namespace Furlstrong.Tests
             f.Fragment.Query["new"] = "yep";
             Assert.AreEqual("/fragment/path?with=params&new=yep", f.Fragment.ToString());
         }
-        /*
-         * 
-### Fragment
 
-Creating hash-bang fragments with furl illustrates the use of Fragment's
-__separator__. When __separator__ is False, the '?' separating __path__ and
-__query__ isn't included.
+        [Test]
+        public void Creating_hash_bang_fragments_illustrates_the_use_of_HasSeparator()
+        {
+            var f = new Furl("http://www.google.com/");
+            f.Fragment.Path = "!";
 
-```pycon
->>> f = furl('http://www.google.com/')
->>> f.fragment.path = '!'
+            /*
 >>> f.fragment.args = {'a':'dict', 'of':'args'}
 >>> f.fragment.separator
 True
@@ -56,6 +53,17 @@ True
 '!a=dict&of=args'
 >>> f.url
 'http://www.google.com/#!a=dict&of=args'
+             */
+        }
+        /*
+         * 
+### Fragment
+
+Creating hash-bang fragments with furl illustrates the use of Fragment's
+__separator__. When __separator__ is False, the '?' separating __path__ and
+__query__ isn't included.
+
+```pycon
 ```
 
 ### Encoding
