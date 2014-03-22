@@ -18,43 +18,25 @@ namespace Furlstrong.Tests
 
             Assert.AreEqual(true, f.Fragment.HasSeparator);
         }
+
+        [Test]
+        public void Manipulationg_of_fragments_is_done_through_the_Fragments_Path_and_Query_instances()
+        {
+            var f = new Furl("http://www.google.com/#/fragment/path?with=params");
+            Assert.AreEqual("/fragment/path?with=params", f.Fragment.ToString());
+
+            f.Fragment.Path.Append("file.exe");
+            Assert.AreEqual("/fragment/path/file.exe?with=params", f.Fragment.ToString());
+
+            f = new Furl("http://www.google.com/#/fragment/path?with=params");
+            Assert.AreEqual("/fragment/path?with=params", f.Fragment.ToString());
+
+            f.Fragment.Query["new"] = "yep";
+            Assert.AreEqual("/fragment/path?with=params&new=yep", f.Fragment.ToString());
+        }
         /*
          * 
 ### Fragment
-
-URL fragments in furl are Fragment objects that have a Path __path__ and Query
-__query__ separated by an optional '?' __separator__.
-
-```pycon
->>> f = furl('http://www.google.com/#/fragment/path?with=params')
->>> f.fragment
-Fragment('/fragment/path?with=params')
->>> f.fragment.path
-Path('/fragment/path')
->>> f.fragment.query
-Query('with=params')
->>> f.fragment.separator
-True
-```
-
-Manipulation of Fragments is done through the Fragment's Path and Query
-instances, __path__ and __query__.
-
-```pycon
->>> f = furl('http://www.google.com/#/fragment/path?with=params')
->>> str(f.fragment)
-'/fragment/path?with=params'
->>> f.fragment.path.segments.append('file.ext')
->>> str(f.fragment)
-'/fragment/path/file.ext?with=params'
-
->>> f = furl('http://www.google.com/#/fragment/path?with=params')
->>> str(f.fragment)
-'/fragment/path?with=params'
->>> f.fragment.args['new'] = 'yep'
->>> str(f.fragment)
-'/fragment/path?new=yep&with=params'
-```
 
 Creating hash-bang fragments with furl illustrates the use of Fragment's
 __separator__. When __separator__ is False, the '?' separating __path__ and

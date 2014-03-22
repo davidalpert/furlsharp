@@ -121,6 +121,22 @@ namespace Furlstrong
                 IsAbsolute = true;
             }
         }
+
+        public FurlPath Append(string pathSegment)
+        {
+            var decoded = FurlUtility.Decode(pathSegment);
+            if (Segments.Any() && Segments.Last() == "")
+            {
+                var targetIndex = Segments.Count - 1;
+                Segments.Insert(targetIndex, decoded);
+            }
+            else
+            {
+                Segments.Add(decoded);
+            }
+
+            return this;
+        }
     }
 
     public static class FurlUtility
