@@ -13,7 +13,7 @@ let private pport = attempt (ch ':' >>. pint32 |>> Port) <!> "port"
 let private ppath = FurlPathParser.ppath
 let private pquery = FurlQueryStringParser.pqueryString
 
-let private pfragment = attempt (ch '#' >>. ppath |>> Fragment) <!> "fragment"
+let private pfragment = attempt (ch '#' >>. ppath .>>. opt pquery |>> Fragment) <!> "fragment"
 
 let private purl = tuple7 (opt pscheme) (opt pcredentials) (opt phost) (opt pport) (opt ppath) (opt pquery) (opt pfragment) |>> Url <!> "url"
 

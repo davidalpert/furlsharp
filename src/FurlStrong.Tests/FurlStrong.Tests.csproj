@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basics.cs" />
+    <Compile Include="Fragments.cs" />
     <Compile Include="OMDictionary\OMDictApprovalHelpers.cs" />
     <Compile Include="OMDictionary\Getters_Setters_and_Adders.cs" />
     <Compile Include="OMDictionary\Groups_And_Group_Iteration.cs" />

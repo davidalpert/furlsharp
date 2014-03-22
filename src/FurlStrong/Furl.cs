@@ -201,10 +201,15 @@ namespace Furlstrong
             }
 
             var fragment = result.Item7;
-            var fragmentPath = fragment == null ? null : fragment.Value.Item;
+            var fragmentPath = fragment == null ? null : fragment.Value.Item1;
             f.Fragment = fragmentPath == null
                              ? new FurlFragment()
                              : new FurlFragment(fragmentPath.Item1, fragmentPath.Item2);
+
+            var fragmentQuery = fragment == null ? null : fragment.Value.Item2;
+            f.Fragment.Query = fragmentQuery == null
+                             ? new FurlQuery()
+                             : new FurlQuery(fragmentQuery.Value.Item);
         }
 
         private static int? GetDefaultPortFor(string scheme)
@@ -389,10 +394,16 @@ namespace Furlstrong
         }
 
         public FurlPath Path { get; set; }
+        public FurlQuery Query { get; set; }
+        public bool HasSeparator { get { return true; } }
 
         public override string ToString()
         {
-            return Path.ToString();
+            var path = Path.ToString();
+            var query = Query.Serialize();
+            return query.IsNotNullOrWhiteSpace()
+                       ? path + "?" + query
+                       : path;
         }
     }
 
