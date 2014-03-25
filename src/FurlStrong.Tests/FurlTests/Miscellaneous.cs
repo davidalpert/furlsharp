@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Furlstrong.Tests
+namespace Furlstrong.Tests.FurlTests
 {
     [TestFixture]
     public class Miscellaneous
@@ -8,7 +8,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Copy_creates_and_returns_a_new_furl_object_with_an_identical_URL()
         {
-            var f = new Furl("http://www.google.com");
+            var f = new Furlstrong.Furl("http://www.google.com");
 
             var f2 = f.Copy();
             Assert.AreNotSame(f,f2);
@@ -24,7 +24,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Join_joins_a_url_with_the_provided_relative_or_absolute_url_and_is_chainable()
         {
-            var f = new Furl("http://www.google.com");
+            var f = new Furlstrong.Furl("http://www.google.com");
 
             Assert.AreEqual("http://www.google.com/new/path", f.Join("new/path").Url);
             Assert.AreEqual("http://www.google.com/new/replaced", f.Join("replaced").Url);

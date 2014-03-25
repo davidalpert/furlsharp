@@ -3,7 +3,7 @@
 /// <summary>
 /// A port of the furl python library's API: https://github.com/gruns/furl/blob/master/API.md
 /// </summary>
-namespace Furlstrong.Tests
+namespace Furlstrong.Tests.FurlTests
 {
     /// <summary>
     /// Given a url:
@@ -30,7 +30,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Furl_objects_let_you_access_and_modify_the_components_of_a_url()
         {
-            var f = Furl.Parse("http://user:pass@www.google.com:90/");
+            var f = Furlstrong.Furl.Parse("http://user:pass@www.google.com:90/");
 
             Assert.AreEqual("http", f.Scheme);
             Assert.AreEqual("user", f.Username);
@@ -48,7 +48,7 @@ namespace Furlstrong.Tests
         [Theory]
         public void Furl_infers_the_default_port_for_common_schemes(string url, int? expectedPort)
         {
-            var f = Furl.Parse(url);
+            var f = Furlstrong.Furl.Parse(url);
 
             Assert.AreEqual(expectedPort, f.Port);
         }
@@ -62,7 +62,7 @@ namespace Furlstrong.Tests
         [Theory]
         public void Netloc_is_the_string_combination_of_username_password_host_and_port(string url, string expectedNetloc)
         {
-            var f = Furl.Parse(url);
+            var f = Furlstrong.Furl.Parse(url);
 
             Assert.AreEqual(expectedNetloc, f.NetLoc);
         }

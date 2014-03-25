@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
-namespace Furlstrong.Tests
+namespace Furlstrong.Tests.FurlTests
 {
     [TestFixture]
     public class Fragments
@@ -9,7 +8,7 @@ namespace Furlstrong.Tests
         [Test]
         public void URL_fragments_in_Furl_are_Fragment_objects_that_have_a_Path_and_Query()
         {
-            var f = new Furl("http://www.google.com/#/fragment/path?with=params");
+            var f = new Furlstrong.Furl("http://www.google.com/#/fragment/path?with=params");
 
             Assert.AreEqual("/fragment/path?with=params", f.Fragment.ToString());
 
@@ -23,13 +22,13 @@ namespace Furlstrong.Tests
         [Test]
         public void Manipulationg_of_fragments_is_done_through_the_Fragments_Path_and_Query_instances()
         {
-            var f = new Furl("http://www.google.com/#/fragment/path?with=params");
+            var f = new Furlstrong.Furl("http://www.google.com/#/fragment/path?with=params");
             Assert.AreEqual("/fragment/path?with=params", f.Fragment.ToString());
 
             f.Fragment.Path.Append("file.exe");
             Assert.AreEqual("/fragment/path/file.exe?with=params", f.Fragment.ToString());
 
-            f = new Furl("http://www.google.com/#/fragment/path?with=params");
+            f = new Furlstrong.Furl("http://www.google.com/#/fragment/path?with=params");
             Assert.AreEqual("/fragment/path?with=params", f.Fragment.ToString());
 
             f.Fragment.Query["new"] = "yep";
@@ -39,7 +38,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Creating_hash_bang_fragments_illustrates_the_use_of_HasSeparator()
         {
-            var f = new Furl("http://www.google.com/");
+            var f = new Furlstrong.Furl("http://www.google.com/");
             f.Fragment.Path = "!";
             f.Fragment.Query.UpdateAll("a", "dict", "of", "args");
             Assert.IsTrue(f.Fragment.HasSeparator, f.Fragment.ToString() + " should have a separator.");
@@ -60,7 +59,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Whole_path_query_and_fragment_strings_are_always_decoded()
         {
-            var f = new Furl();
+            var f = new Furlstrong.Furl();
 
             f.Path = "supply%20encoded/whole%20path%20strings";
             CollectionAssert.AreEqual(new[] {"supply encoded", "whole path strings"},
@@ -73,7 +72,7 @@ namespace Furlstrong.Tests
             CollectionAssert.AreEqual(new[] {"encoded path string"}, f.Fragment.Path.Segments);
             Assert.AreEqual("query string too", f.Fragment.Query["and encoded"]);
 
-            f = new Furl();
+            f = new Furlstrong.Furl();
 
             f.Path = new[] {"path segments are", "decoded", "<>[]\"#"};
             Assert.AreEqual("/path%20segments%20are/decoded/%3C%3E%5B%5D%22%23".ToLowerInvariant(), f.Path.ToString());

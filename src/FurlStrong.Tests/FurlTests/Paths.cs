@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Furlstrong.Tests
+namespace Furlstrong.Tests.FurlTests
 {
     /// <summary>
     /// URL paths in furl are Path objects that have segments, 
@@ -17,7 +16,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Url_paths_are_FurlPath_objects_that_have_segments()
         {
-            var f = Furl.Parse("http://www.google.com/a/larg%20ish/path");
+            var f = Furlstrong.Furl.Parse("http://www.google.com/a/larg%20ish/path");
 
             Assert.IsInstanceOf<FurlPath>(f.Path);
 
@@ -31,7 +30,7 @@ namespace Furlstrong.Tests
         [Test]
         public void URL_path_segments_can_be_manipulated_directly_as_decoded_strings()
         {
-            var f = new Furl("http://www.google.com/");
+            var f = new Furlstrong.Furl("http://www.google.com/");
 
             f.Path.Segments = FurlPath.FromSegments("a", "new", "path", "");
             Assert.AreEqual("/a/new/path/", f.Path.ToString());
@@ -53,7 +52,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Can_assign_a_path_from_an_array_of_strings()
         {
-            var f = new Furl("http://www.google.com/");
+            var f = new Furlstrong.Furl("http://www.google.com/");
 
             f.Path = new [] {"a", "new", "path", ""};
 
@@ -63,14 +62,14 @@ namespace Furlstrong.Tests
         [Test]
         public void A_path_that_starts_with_backslash_is_considered_absolute()
         {
-            var f = new Furl("/url/path");
+            var f = new Furlstrong.Furl("/url/path");
             Assert.IsTrue(f.Path.IsAbsolute, "/url/path should be absolute.");
         }
 
         [Test]
         public void A_path_can_be_absolute_or_not_as_specified_or_set()
         {
-            var f = new Furl("/url/path");
+            var f = new Furlstrong.Furl("/url/path");
 
             f.Path.IsAbsolute = false;
             Assert.AreEqual("url/path",f.Path.ToString());
@@ -86,7 +85,7 @@ namespace Furlstrong.Tests
         [Test]
         public void URL_paths_must_be_absolute_if_a_netloc_is_present()
         {
-            var f = new Furl("/url/path");
+            var f = new Furlstrong.Furl("/url/path");
 
             f.Path.IsAbsolute = false;
             Assert.AreEqual("url/path",f.Path.ToString());
@@ -111,7 +110,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Here_is_a_fragment_path_example()
         {
-            var f = new Furl("http://www.google.com/#/absolute/fragment/path/");
+            var f = new Furlstrong.Furl("http://www.google.com/#/absolute/fragment/path/");
 
             Assert.IsTrue(f.Path.IsAbsolute, "http://www.google.com/ is an absolute path");
             Assert.AreEqual("/", f.Path.ToString(), "The '#' character was mistakenly parsed as a path node.");
@@ -135,7 +134,7 @@ namespace Furlstrong.Tests
         [Theory]
         public void A_path_that_ends_in_a_slash_is_considered_a_directory_and_otherwise_a_file(string url, bool isDirectory, bool isFile)
         {
-            var f = new Furl(url);
+            var f = new Furlstrong.Furl(url);
 
             Assert.AreEqual(isDirectory, f.Path.IsDirectory, url + " is a directory.");
             Assert.AreEqual(isFile, f.Path.IsFile, url + " is a file.");
@@ -148,7 +147,7 @@ namespace Furlstrong.Tests
         [Test]
         public void A_path_can_be_normalized_with_normalize()
         {
-            var f = new Furl("http://www.google.com////a/./b/lolsup/../c/");
+            var f = new Furlstrong.Furl("http://www.google.com////a/./b/lolsup/../c/");
             Assert.AreEqual( "http://www.google.com////a/./b/lolsup/../c/", f.Url);
 
             f.Path.Normalize();

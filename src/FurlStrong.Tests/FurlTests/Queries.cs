@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Furlstrong.Tests
+namespace Furlstrong.Tests.FurlTests
 {
     /// <summary>
     /// URL queries in furl are Query objects that have params, 
@@ -17,7 +17,7 @@ namespace Furlstrong.Tests
         [Test]
         public void URL_queries_in_Furl_are_FurlQuery_objects_that_have_params()
         {
-            var f = new Furl("http://www.google.com/?one=1&two=2");
+            var f = new Furlstrong.Furl("http://www.google.com/?one=1&two=2");
             Assert.AreEqual("http://www.google.com/?one=1&two=2", f.Url);
 
             Assert.AreEqual("one=1&two=2", f.Query.ToString());
@@ -29,7 +29,7 @@ namespace Furlstrong.Tests
         [Test]
         public void URL_query_keys_and_values_are_maintained_decoded()
         {
-            var f = new Furl("http://www.google.com/?on%20e=1%202&two=2");
+            var f = new Furlstrong.Furl("http://www.google.com/?on%20e=1%202&two=2");
             Assert.AreEqual("http://www.google.com/?on%20e=1%202&two=2", f.Url);
 
             Assert.AreEqual("1 2", f.Query["on e"]);
@@ -41,7 +41,7 @@ namespace Furlstrong.Tests
             Query_is_a_one_dimensional_ordered_multivalue_dictionary_method_that_maintains_parity_with_the_NameValueCollection_that_backs_HttpRequest_QueryString
             ()
         {
-            var f = new Furl("http://google.com/");
+            var f = new Furlstrong.Furl("http://google.com/");
 
             f.Query = FurlQuery.Parse("silicon=14&iron=26&inexorable%20progress=vae%20victus");
 
@@ -61,7 +61,7 @@ namespace Furlstrong.Tests
         [Test]
         public void Query_can_also_store_multiple_values_for_the_same_key()
         {
-            var f = new Furl("http://www.google.com/?space=jams&space=slams");
+            var f = new Furlstrong.Furl("http://www.google.com/?space=jams&space=slams");
 
             // single access returns the first
             Assert.AreEqual("jams", f.Query["space"]);
