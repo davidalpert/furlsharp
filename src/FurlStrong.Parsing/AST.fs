@@ -1,4 +1,5 @@
 ﻿namespace FurlStrong.Parsing.AST
+open System.Net.Http
 
 type Scheme = Scheme of string
 type Username = Username of string
@@ -13,3 +14,6 @@ type QueryString = QueryString of QueryStringParameter list
 type Fragment = Fragment of Path * QueryString option
 
 type Url = Url of Scheme option * Credentials option * Host option * Port option * Path option * QueryString option * Fragment option
+
+type OptionalComment = OptionalComment of string option
+type Route = Route of HttpMethod * Path * OptionalComment 

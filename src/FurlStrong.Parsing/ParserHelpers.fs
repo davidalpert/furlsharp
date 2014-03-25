@@ -4,10 +4,10 @@ open System
 open FParsec
 
 // make this compiler directive condition true to trace the parsers
-#if xDEBUG
+#if DEBUG
 let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
     fun stream ->
-        //printfn "%A: Entering %s" stream.Position label
+        printfn "%A: Entering %s" stream.Position label
         let reply = p stream
         let result = reply.Result
         printfn "%A: Leaving %s (%A) - (%A)" stream.Position label reply.Status result
@@ -17,7 +17,8 @@ let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
     fun stream -> p stream
 #endif
 
-let private ws = spaces
+let ws = spaces
+let nbws:Parser<string,unit> = manySatisfy (isAnyOf " \t")
 let ch c = pchar c
 let private ch_ws c = ch c .>> ws
 let private ws_ch_ws c = ws >>. ch c .>> ws

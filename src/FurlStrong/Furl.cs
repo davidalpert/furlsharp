@@ -9,7 +9,7 @@ using FurlStrong.AOP;
 using FurlStrong.Internal;
 using FurlStrong.Parsing.AST;
 using Microsoft.FSharp.Collections;
-using ASTPath = Microsoft.FSharp.Collections.FSharpList<System.Tuple<string, bool>>;
+using ASTPath = FurlStrong.Parsing.AST.Path;
 
 namespace Furlstrong
 {
@@ -46,11 +46,13 @@ namespace Furlstrong
             Initialize(isAbsolute, pathParts, hasTrailingSlash);
         }
 
-        internal FurlPath(bool isAbsolute, ASTPath path)
+        internal FurlPath(ASTPath path)
         {
-            var lastPathNode = path.LastOrDefault();
+            var isAbsolute = path.Item1;
+            var pathNodes = path.Item2;
+            var lastPathNode = pathNodes.LastOrDefault();
             var hasTrailingSlash = lastPathNode != null && lastPathNode.Item2;
-            var pathParts = path.Select(n => n.Item1).ToList();
+            var pathParts = pathNodes.Select(n => n.Item1).ToList();
 
             Initialize(isAbsolute, pathParts, hasTrailingSlash);
         }
@@ -121,7 +123,7 @@ namespace Furlstrong
         {
             var result = FurlPathParser.Parse(path);
 
-            var p = new FurlPath(result.Item1, result.Item2);
+            var p = new FurlPath(result);
 
             return p;
         }
@@ -237,7 +239,7 @@ namespace Furlstrong
             var path = result.Item5;
             f.Path = path == null 
                 ? new FurlPath() 
-                : new FurlPath(path.Value.Item1, path.Value.Item2);
+                : new FurlPath(path.Value);
 
             var query = result.Item6;
             if (query != null)
@@ -249,7 +251,7 @@ namespace Furlstrong
             var fragmentPath = fragment == null ? null : fragment.Value.Item1;
             f.Fragment = fragmentPath == null
                              ? new FurlFragment()
-                             : new FurlFragment(fragmentPath.Item1, fragmentPath.Item2);
+                             : new FurlFragment(fragmentPath);
 
             var fragmentQuery = fragment == null ? null : fragment.Value.Item2;
             f.Fragment.Query = fragmentQuery == null
@@ -480,9 +482,9 @@ namespace Furlstrong
             HasSeparator = true;
         }
 
-        internal FurlFragment(bool item1, ASTPath item2)
+        internal FurlFragment(ASTPath path)
         {
-            Path = new FurlPath(item1, item2);
+            Path = new FurlPath(path);
             Query = new FurlQuery();
             HasSeparator = true;
         }
@@ -512,7 +514,7 @@ namespace Furlstrong
             var fragmentPath = x == null ? null : x.Item1;
             var frag = fragmentPath == null
                              ? new FurlFragment()
-                             : new FurlFragment(fragmentPath.Item1, fragmentPath.Item2);
+                             : new FurlFragment(fragmentPath);
 
             var fragmentQuery = x == null ? null : x.Item2;
             frag.Query = fragmentQuery == null
