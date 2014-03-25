@@ -60,8 +60,6 @@ namespace Furlstrong.Tests
         [Test]
         public void Whole_path_query_and_fragment_strings_are_always_decoded()
         {
-            Assert.Inconclusive("implementation in progress");
-
             var f = new Furl();
 
             f.Path = "supply%20encoded/whole%20path%20strings";
@@ -78,13 +76,14 @@ namespace Furlstrong.Tests
             f = new Furl();
 
             f.Path = new[] {"path segments are", "decoded", "<>[]\"#"};
-            Assert.AreEqual("/path%20segments%20are/decoded/%3C%3E%5B%5D%22%23", f.Path.ToString());
+            Assert.AreEqual("/path%20segments%20are/decoded/%3C%3E%5B%5D%22%23".ToLowerInvariant(), f.Path.ToString());
 
             f.Query.UpdateAll("query parameters", "and values", "are", "decoded, too");
-            Assert.AreEqual("query+parameters=and+values&are=decoded,+too", f.Query.ToString());
+            Assert.AreEqual("query%20parameters=and%20values&are=decoded%2c%20too", f.Query.ToString());
 
             f.Fragment.Path.Segments = new[] {"decoded", "path segments"};
-            Assert.AreEqual("decoded/path%20segments?and+decoded=query+parameters+and+values",
+            f.Fragment.Query["and decoded"] = "query parameters and values";
+            Assert.AreEqual("decoded/path%20segments?and%20decoded=query%20parameters%20and%20values",
                             f.Fragment.ToString());
         }
     }

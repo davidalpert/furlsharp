@@ -162,7 +162,7 @@ namespace Furlstrong
 
         public static implicit operator FurlPath(string[] segments)
         {
-            return new FurlPath {Segments = FromSegments(segments)};
+            return new FurlPath {Segments = FromSegments(segments), IsAbsolute = true};
         }
     }
 
@@ -202,6 +202,7 @@ namespace Furlstrong
         {
             f.Path = new FurlPath();
             f.Query = new FurlQuery();
+            f.Fragment = new FurlFragment();
 
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -448,12 +449,14 @@ namespace Furlstrong
         public FurlFragment()
         {
             Path = new FurlPath();
+            Query = new FurlQuery();
             HasSeparator = true;
         }
 
         internal FurlFragment(bool item1, ASTPath item2)
         {
             Path = new FurlPath(item1, item2);
+            Query = new FurlQuery();
             HasSeparator = true;
         }
 
@@ -473,7 +476,7 @@ namespace Furlstrong
 
         public static implicit operator FurlFragment(string fragment)
         {
-            if (fragment.IsNotNullOrWhiteSpace()) return new FurlFragment();
+            if (string.IsNullOrWhiteSpace(fragment)) return new FurlFragment();
 
             fragment = fragment.StartsWith("#") ? fragment : "#" + fragment;
 
