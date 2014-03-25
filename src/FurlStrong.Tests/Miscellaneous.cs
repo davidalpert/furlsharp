@@ -24,8 +24,6 @@ namespace Furlstrong.Tests
         [Test]
         public void Join_joins_a_url_with_the_provided_relative_or_absolute_url_and_is_chainable()
         {
-            Assert.Inconclusive("implementation in progress");
-
             var f = new Furl("http://www.google.com");
 
             Assert.AreEqual("http://www.google.com/new/path", f.Join("new/path").Url);

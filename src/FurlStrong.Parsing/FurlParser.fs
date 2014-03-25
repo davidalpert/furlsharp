@@ -8,7 +8,16 @@ open FurlStrong.Parsing.AST
 
 let private pscheme = attempt (manyChars letter .>> str "://" |>> Scheme ) <!> "scheme"
 let private pcredentials = (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials) <!> "credentials"
-let private phost = attempt (manySatisfy (fun c -> match c with ':'|'/'->false|_->true) |>> Host) <!> "host"
+let private isHostPartChar c = match c with
+                               | ':'
+                               | '/' 
+                               | '.' -> false
+                               | _ -> true
+
+let private phostPart = many1Satisfy isHostPartChar <!> "host part"
+let private phost = attempt (phostPart .>> ch '.' .>>. sepBy1 (phostPart) (ch '.')
+                             |>> (fun (firstPart,hostParts) -> firstPart + "." + System.String.Join(".", hostParts))
+                             |>> Host) <!> "host"
 let private pport = attempt (ch ':' >>. pint32 |>> Port) <!> "port"
 let private ppath = FurlPathParser.ppath
 let private pquery = FurlQueryStringParser.pqueryString

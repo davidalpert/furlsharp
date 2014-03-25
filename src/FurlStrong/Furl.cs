@@ -6,6 +6,7 @@ using System.Text;
 using System.Web;
 using FurlStrong;
 using FurlStrong.AOP;
+using FurlStrong.Internal;
 using FurlStrong.Parsing.AST;
 using Microsoft.FSharp.Collections;
 using ASTPath = Microsoft.FSharp.Collections.FSharpList<System.Tuple<string, bool>>;
@@ -370,11 +371,37 @@ namespace Furlstrong
 
         public Furl Join(string newPath)
         {
-            var f = Copy();
-            var p = FurlPath.Parse(newPath);
-            f.Path.Segments.AddRange(p.Segments);
-            f.Path = f.Path.Normalize();
-            return f;
+            var newUrl = Parse(newPath);
+            if (newUrl.NetLoc.IsNotNullOrWhiteSpace())
+            {
+                return newUrl;
+            }
+
+            Query = newUrl.Query;
+            Fragment = newUrl.Fragment;
+
+            if (newUrl.Path.IsAbsolute || Path.Segments.Count == 0)
+            {
+                Path = newUrl.Path;
+            }
+            else
+            {
+                if (Path.IsFile)
+                {
+                    Path.Segments.RemoveLast();
+                }
+
+                var newSegments = newUrl.Path.Segments;
+                while (Path.Segments.Count > 0 
+                    && newSegments.FirstOrDefault() == "..")
+                {
+                    Path.Segments.RemoveLast();
+                    newSegments.RemoveFirst();
+                }
+                Path.Segments.AddRange(newSegments);
+            }
+
+            return this;
         }
     }
 

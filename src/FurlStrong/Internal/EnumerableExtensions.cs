@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FurlStrong.Internal
 {
@@ -21,6 +22,20 @@ namespace FurlStrong.Internal
             {
                 act(item, i);
             }
+        }
+
+        public static void RemoveFirst<T>(this List<T> items)
+        {
+            if (items == null || items.Count == 0) return;
+            items.RemoveAt(0);
+        }
+
+        public static void RemoveLast<T>(this List<T> items)
+        {
+            if (items == null) return;
+            var count = items.Count;
+            if (count == 0) return;
+            items.RemoveAt(count - 1);
         }
     }
 }

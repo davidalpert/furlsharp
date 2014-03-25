@@ -4,7 +4,7 @@ open System
 open FParsec
 
 // make this compiler directive condition true to trace the parsers
-#if DEBUG
+#if xDEBUG
 let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
     fun stream ->
         //printfn "%A: Entering %s" stream.Position label
