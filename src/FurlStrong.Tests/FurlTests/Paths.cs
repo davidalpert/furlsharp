@@ -1,7 +1,8 @@
 ﻿using System;
+using Furlstrong;
 using NUnit.Framework;
 
-namespace Furlstrong.Tests.FurlTests
+namespace FurlStrong.Tests.FurlTests
 {
     /// <summary>
     /// URL paths in furl are Path objects that have segments, 

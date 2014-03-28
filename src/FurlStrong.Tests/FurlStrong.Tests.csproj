@@ -7,8 +7,8 @@
     <ProjectGuid>{49FB4472-9C7E-491C-B654-088C746584DF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Furlstrong.Tests</RootNamespace>
-    <AssemblyName>Furlstrong.Tests</AssemblyName>
+    <RootNamespace>FurlStrong.Tests</RootNamespace>
+    <AssemblyName>FurlStrong.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ApprovalTests">
+      <HintPath>..\..\packages\ApprovalTests.3.0.5\lib\net40\ApprovalTests.dll</HintPath>
+    </Reference>
+    <Reference Include="ApprovalUtilities">
+      <HintPath>..\..\packages\ApprovalUtilities.3.0.5\lib\net35\ApprovalUtilities.dll</HintPath>
+    </Reference>
     <Reference Include="FParsec, Version=1.0.0.0, Culture=neutral, PublicKeyToken=40ccfc0a09edbb5d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\FParsec.1.0.1\lib\net40-client\FParsec.dll</HintPath>
@@ -44,6 +50,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="ObjectApproval">
+      <HintPath>..\..\packages\ObjectApproval.0.1.4\Lib\NET40\ObjectApproval.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -54,7 +63,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FurlRouteCollectionTests.cs" />
+    <Compile Include="BigPictureSpecs.cs" />
+    <Compile Include="FurlRouteMapTests.cs" />
     <Compile Include="FurlTests\Basics.cs" />
     <Compile Include="FurlTests\Fragments.cs" />
     <Compile Include="FurlTests\Miscellaneous.cs" />
@@ -70,6 +80,7 @@
     <Compile Include="FurlTests\Paths.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FurlTests\Queries.cs" />
+    <EmbeddedResource Include="sample.urls" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

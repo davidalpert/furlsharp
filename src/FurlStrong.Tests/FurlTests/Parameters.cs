@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Furlstrong;
+using NUnit.Framework;
 
-namespace Furlstrong.Tests.FurlTests
+namespace FurlStrong.Tests.FurlTests
 {
     [TestFixture]
     public class Parameters

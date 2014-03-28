@@ -1,4 +1,4 @@
-﻿module FurlRouteCollectionParser
+﻿module FurlRouteMapParser
 
 open System
 open System.Net.Http
@@ -14,11 +14,12 @@ let private phttpMethod =
                 stringReturn "DELETE" HttpMethod.Delete 
                 <!> "http method"
 
+let private pnamespace = attempt (opt (str "namespace " >>. many1Satisfy (isNoneOf " \t\n"))) |>> OptionalNamespace <!> "namespace declaration"
 let private pcomment = attempt (opt (ch '#' >>. nbws >>. restOfLine false)) |>> OptionalComment <!> "comment"
 let private proute = tuple3 (phttpMethod) (nbws >>. FurlPathParser.ppath) (nbws >>. pcomment .>> skipRestOfLine true) |>> Route <!> "route"
-let private prouteCollection = many (ws >>. proute)
+let private proute_map = tuple2 pnamespace (many (ws >>. proute)) |>> RouteMap <!> "route map"
 
-let private parser = ws >>. prouteCollection .>> eof
+let private parser = ws >>. proute_map .>> eof
 
 let private ParseAST str =
     match run parser str with

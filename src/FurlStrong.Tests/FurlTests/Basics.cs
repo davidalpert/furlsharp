@@ -3,7 +3,7 @@
 /// <summary>
 /// A port of the furl python library's API: https://github.com/gruns/furl/blob/master/API.md
 /// </summary>
-namespace Furlstrong.Tests.FurlTests
+namespace FurlStrong.Tests.FurlTests
 {
     /// <summary>
     /// Given a url:

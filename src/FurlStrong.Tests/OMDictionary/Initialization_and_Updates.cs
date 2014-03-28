@@ -1,7 +1,6 @@
-﻿using FurlStrong;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
-namespace Furlstrong.Tests.OMDictionary
+namespace FurlStrong.Tests.OMDictionary
 {
     [TestFixture]
     public class Initialization_And_Updates

@@ -60,7 +60,7 @@
     <Compile Include="FurlPathParser.fs" />
     <Compile Include="FurlQueryStringParser.fs" />
     <Compile Include="FurlParser.fs" />
-    <Compile Include="FurlRouteCollectionParser.fs" />
+    <Compile Include="FurlRouteMapParser.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
   </ItemGroup>

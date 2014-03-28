@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using FurlStrong;
 using NUnit.Framework;
 
-namespace Furlstrong.Tests.OMDictionary
+namespace FurlStrong.Tests.OMDictionary
 {
     /// <summary>
     /// Describes the basic behavior of an <see cref="OMDict"/>.

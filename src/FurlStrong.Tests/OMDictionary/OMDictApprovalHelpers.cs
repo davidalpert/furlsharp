@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Furlstrong.Tests.OMDictionary
+namespace FurlStrong.Tests.OMDictionary
 {
     /// <summary>
     /// Assist in formatting kvp and tuples for review and approval.

@@ -1,8 +1,7 @@
 using System;
-using FurlStrong;
 using NUnit.Framework;
 
-namespace Furlstrong.Tests.OMDictionary
+namespace FurlStrong.Tests.OMDictionary
 {
     [TestFixture]
     public class Indexing
