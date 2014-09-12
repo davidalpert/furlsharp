@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.props" Condition="Exists('..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -38,7 +39,9 @@
     <Reference Include="FParsecCS">
       <HintPath>..\..\packages\FParsec.1.0.1\lib\net40-client\FParsecCS.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -58,12 +61,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="ILMerge.props" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="ILMergeOrder.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FurlSharp.Parsing\FurlSharp.Parsing.fsproj">
@@ -80,9 +85,39 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
     <Error Condition="!Exists('..\..\packages\Fody.1.22.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.22.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.props'))" />
+    <Error Condition="!Exists('..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.targets'))" />
   </Target>
   <Import Project="..\..\packages\Fody.1.22.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.22.1\build\Fody.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.targets" Condition="Exists('..\..\packages\MSBuild.ILMerge.Task.1.0.2\build\MSBuild.ILMerge.Task.targets')" />
+  <!-- overrode locally to specify AllowDuplicateType in a reliable way. -->
+  <!-- override standard target our own merge-and-copy-content -->
+  <Target Name="CopyFilesToOutputDirectory">
+    <Message Text="Merged assemblies: $(MergedAssemblies)" Importance="high" />
+    <Message Text="Not merged assemblies: $(UnmergedAssemblies)" Importance="normal" />
+    <Message Text="Merged Output in: $(MergeOutputFile)" Importance="normal" />
+    <Message Text="Key file: $(ILMergeKeyFile)" Importance="normal" />
+    <Message Text="Libraries in: $(ILMergeLibraryPath)" Importance="normal" />
+    <Message Text="Packages in: $(ILMergePackagesPath)" Importance="normal" />
+    <Message Text="Merge order file: $(ILMergeOrderFile)" Importance="normal" />
+    <Message Text="Local content: @(LocalContentFiles)" Importance="low" />
+    <Message Text="Allow Duplate Type: *" Importance="low" />
+
+    <!-- run ILMerge  -->
+    <MSBuild.ILMerge.Task TargetPlatform="net40"
+        KeyFile="$(KeyOriginatorFile)"
+        OutputFile="$(MergeOutputFile)"
+        LibraryPath="$(ILMergeLibraryPath)"
+        InputAssemblies="$(MergedAssemblies)"
+        LibraryAssemblies="$(UnmergedAssemblies)"
+        PackagesDir="$(ILMergePackagesPath)"
+        MergeOrderFile="$(ILMergeOrderFile)"
+        AllowDuplicateType="*"
+        DebugInfo="true" ShouldLog="true" />
+    <!-- copy content files marked as copy always or newest -->
+    <Copy SourceFiles="@(LocalContentFiles)" DestinationFolder="$(OutputPath)" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
