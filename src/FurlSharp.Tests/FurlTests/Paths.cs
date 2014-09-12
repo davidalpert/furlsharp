@@ -1,15 +1,14 @@
 ﻿using System;
-using FurlSharp;
 using NUnit.Framework;
 
 namespace FurlSharp.Tests.FurlTests
 {
     /// <summary>
-    /// URL paths in furl are Path objects that have segments, 
-    /// a list of zero or more path segments that can be manipulated 
-    /// directly. Path segments in segments are maintained 
-    /// decoded and all interaction with segments should take place 
-    /// with decoded segment strings. 
+    /// URL paths in furl are Path objects that have segments,
+    /// a list of zero or more path segments that can be manipulated
+    /// directly. Path segments in segments are maintained
+    /// decoded and all interaction with segments should take place
+    /// with decoded segment strings.
     /// </summary>
     [TestFixture]
     public class Paths
@@ -17,7 +16,7 @@ namespace FurlSharp.Tests.FurlTests
         [Test]
         public void Url_paths_are_FurlPath_objects_that_have_segments()
         {
-            var f = Furl.Parse("http://www.google.com/a/larg%20ish/path");
+            var f = new Furl("http://www.google.com/a/larg%20ish/path");
 
             Assert.IsInstanceOf<FurlPath>(f.Path);
 
@@ -37,7 +36,7 @@ namespace FurlSharp.Tests.FurlTests
             Assert.AreEqual("/a/new/path/", f.Path.ToString());
 
             f.Path = "o/hi/there/with%20some%20encoding/";
-            
+
             CollectionAssert.AreEqual(
                 new[] { "o", "hi", "there", "with some encoding", ""}, f.Path.Segments
                 );
@@ -80,8 +79,8 @@ namespace FurlSharp.Tests.FurlTests
         }
 
         /// <remarks>
-        /// This restriction exists because a URL path must start with '/' 
-        /// to separate itself from a netloc. 
+        /// This restriction exists because a URL path must start with '/'
+        /// to separate itself from a netloc.
         /// </remarks>
         [Test]
         public void URL_paths_must_be_absolute_if_a_netloc_is_present()
@@ -126,8 +125,8 @@ namespace FurlSharp.Tests.FurlTests
         }
 
         /// <summary>
-        /// A path that ends with '/' is considered a directory, and otherwise considered a file. 
-        /// The Path attribute isdir returns True if the path is a directory, False otherwise. 
+        /// A path that ends with '/' is considered a directory, and otherwise considered a file.
+        /// The Path attribute isdir returns True if the path is a directory, False otherwise.
         /// Conversely, the attribute isfile returns True if the path is a file, False otherwise.
         /// </summary>
         [TestCase("http://www.google.com/a/directory/", true, false)]
@@ -142,7 +141,7 @@ namespace FurlSharp.Tests.FurlTests
         }
 
         /// <summary>
-        /// A path can be normalized with normalize(). 
+        /// A path can be normalized with normalize().
         /// normalize() returns the Path object for method chaining.
         /// </summary>
         [Test]

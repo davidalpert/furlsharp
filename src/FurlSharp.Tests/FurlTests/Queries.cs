@@ -1,15 +1,14 @@
-﻿using FurlSharp;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace FurlSharp.Tests.FurlTests
 {
     /// <summary>
-    /// URL queries in furl are Query objects that have params, 
-    /// a one dimensional ordered multivalue dictionary of 
-    /// query keys and values. 
-    /// 
-    /// Query keys and values in params are maintained decoded 
-    /// and all interaction with params should take place with 
+    /// URL queries in furl are Query objects that have params,
+    /// a one dimensional ordered multivalue dictionary of
+    /// query keys and values.
+    ///
+    /// Query keys and values in params are maintained decoded
+    /// and all interaction with params should take place with
     /// decoded strings.
     /// </summary>
     [TestFixture]

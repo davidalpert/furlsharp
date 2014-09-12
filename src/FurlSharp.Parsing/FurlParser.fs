@@ -1,6 +1,5 @@
 ﻿module FurlParser
 
-open System
 open FParsec
 open ParserHelpers
 open FurlSharp.Parsing
@@ -10,7 +9,7 @@ let private pscheme = attempt (manyChars letter .>> str "://" |>> Scheme ) <!> "
 let private pcredentials = (parseIf (regex "[^/]+\@") "expected '@'" (anything_until ':' Username .>>. anything_until '@' Password) |>> Credentials) <!> "credentials"
 let private isHostPartChar c = match c with
                                | ':'
-                               | '/' 
+                               | '/'
                                | '.' -> false
                                | _ -> true
 
@@ -30,14 +29,14 @@ let private parser = purl .>> eof
 
 let private ParseAST str =
     match run parser str with
-    | Success(result, _, _)   -> result 
+    | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
 
 let Parse str = ParseAST str //|> ASTToObjectModelVisitor.Visit
 
-let ParseFragment str = 
+let ParseFragment str =
     match run pfragment str with
-    | Success(result, _, _)   -> result 
+    | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
 
 let PrettyPrint a = sprintf "%A" a

@@ -1,6 +1,5 @@
 ﻿module FurlQueryStringParser
 
-open System
 open FParsec
 open FurlSharp.Parsing
 open FurlSharp.Parsing.AST
@@ -12,7 +11,7 @@ let internal pqueryString = attempt (ch '?' >>. many pqueryPair |>> QueryString)
 
 let private parser = pqueryString
 
-let Parse str = 
+let Parse str =
     match run parser str with
-    | Success(result, _, _)   -> result 
+    | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))

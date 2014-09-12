@@ -46,7 +46,7 @@ namespace FurlSharp.Tests.OMDictionary
 
         /// <summary>
         /// Update() updates the dictionary with items, one item per key.
-        /// 
+        ///
         /// UpdateAll() upates the dictionary with all items from the params,
         /// preserving key order, then adds remaining keys to the end.
         /// </summary>

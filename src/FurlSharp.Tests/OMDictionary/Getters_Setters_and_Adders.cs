@@ -3,7 +3,7 @@ using NUnit.Framework;
 namespace FurlSharp.Tests.OMDictionary
 {
     [TestFixture]
-    public class Getters_Setters_and_Adders
+    public class Getters_Setters_And_Adders
     {
         [Test]
         public void Get_gets_the_first_value_and_can_provide_a_default()
@@ -60,7 +60,7 @@ namespace FurlSharp.Tests.OMDictionary
         }
 
         /// <summary>
-        /// If key is in the dictionary, return its value. If not, insert key with a 
+        /// If key is in the dictionary, return its value. If not, insert key with a
         /// value of default and return default. Default defaults to null.
         /// </summary>
         [Test]
@@ -70,7 +70,7 @@ namespace FurlSharp.Tests.OMDictionary
 
             Assert.AreEqual("1", omd.SetDefault("1"));
 
-            omd.SetDefault("2", null);
+            omd.SetDefault("2");
 
             Assert.AreEqual("[(1, 1), (2, )]", omd.AllItems().FormatForApproval());
         }

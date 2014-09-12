@@ -1,6 +1,5 @@
 ﻿module FurlPathParser
 
-open System
 open FParsec
 open FurlSharp.Parsing
 open FurlSharp.Parsing.AST
@@ -14,7 +13,7 @@ let internal ppath = pipe2 proot (many (ppathPart)) (fun root nodes -> (root.IsS
 
 let private parser = ppath
 
-let Parse str = 
+let Parse str =
     match run parser str with
-    | Success(result, _, _)   -> result 
+    | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))

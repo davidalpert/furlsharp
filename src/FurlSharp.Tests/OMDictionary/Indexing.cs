@@ -7,7 +7,7 @@ namespace FurlSharp.Tests.OMDictionary
     public class Indexing
     {
         /// <summary>
-        /// If *key* has multiple values, 
+        /// If *key* has multiple values,
         /// only the first value is returned.
         /// </summary>
         [Test]
@@ -20,8 +20,8 @@ namespace FurlSharp.Tests.OMDictionary
         }
 
         /// <summary>
-        /// If *key* has multiple values, 
-        /// they will all be deleted and 
+        /// If *key* has multiple values,
+        /// they will all be deleted and
         /// replaced by *value*.
         /// </summary>
         [Test]
@@ -38,7 +38,7 @@ namespace FurlSharp.Tests.OMDictionary
         }
 
         /// <summary>
-        /// If *key* has multiple values, 
+        /// If *key* has multiple values,
         /// all of them will be deleted.
         /// </summary>
         [Test]
@@ -63,7 +63,7 @@ namespace FurlSharp.Tests.OMDictionary
 
             Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
-                    var x = omd[-1];
+                    var pair = omd[-1];
                 });
             Assert.AreEqual("[1, 1]", omd[0].ToString());
             Assert.AreEqual("[1, 11]", omd[1].ToString());
@@ -72,7 +72,7 @@ namespace FurlSharp.Tests.OMDictionary
             Assert.AreEqual("[3, 3]", omd[4].ToString());
             Assert.Throws<ArgumentOutOfRangeException>(() =>
                 {
-                    var x = omd[5];
+                    var pair = omd[5];
                 });
         }
     }

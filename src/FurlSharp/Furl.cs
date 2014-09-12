@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using FurlSharp;
 using FurlSharp.AOP;
 using FurlSharp.Internal;
 using FurlSharp.Parsing.AST;
-using Microsoft.FSharp.Collections;
 using ASTPath = FurlSharp.Parsing.AST.Path;
 
 namespace FurlSharp
@@ -19,7 +16,7 @@ namespace FurlSharp
         /// </summary>
         public class FurlPathSegments : List<string>
         {
-            public FurlPathSegments(IEnumerable<string> segments) 
+            public FurlPathSegments(IEnumerable<string> segments)
             {
                 if (segments != null)
                     AddRange(segments);
@@ -81,7 +78,7 @@ namespace FurlSharp
 
         public bool IsDirectory {
             get {
-                return Segments.Any() == false 
+                return Segments.Any() == false
                     ||  string.IsNullOrWhiteSpace(Segments.Last());
             }
         }
@@ -94,14 +91,14 @@ namespace FurlSharp
             //       path (isFile) -> path (isDirectory) ...
             //       so that path.ParentDirectory is like stripping off a node in the url
 
-            var nodesToClear = this.Segments.Select((node, i) => node == ".." ? i - 1 : -1).ToArray();
+            var nodesToClear = Segments.Select((node, i) => node == ".." ? i - 1 : -1).ToArray();
 
-            var normalizedSegments = this.Segments
+            var normalizedSegments = Segments
                                          .Select((node, i) => nodesToClear.Any(j => j == i) ? "" : node.Replace('.', ' '))
                                          .Where(StringExtensions.IsNotNullOrWhiteSpace)
                                          .ToList();
 
-            if (IsDirectory) 
+            if (IsDirectory)
                 normalizedSegments.Add("");
 
             Segments = new FurlPathSegments(normalizedSegments);
@@ -172,8 +169,8 @@ namespace FurlSharp
     {
         public static string Encode(string raw)
         {
-            return raw == null 
-                ? null 
+            return raw == null
+                       ? null
                        : Uri.EscapeDataString(raw);
         }
 
@@ -193,11 +190,6 @@ namespace FurlSharp
         public Furl(string url = null)
         {
             InitializeWith(url, this);
-        }
-
-        public static Furl Parse(string url)
-        {
-            return new Furl(url);
         }
 
         private static void InitializeWith(string url, Furl f)
@@ -236,8 +228,8 @@ namespace FurlSharp
                          : GetDefaultPortFor(f.Scheme);
 
             var path = result.Item5;
-            f.Path = path == null 
-                ? new FurlPath() 
+            f.Path = path == null
+                ? new FurlPath()
                 : new FurlPath(path.Value);
 
             var query = result.Item6;
@@ -316,7 +308,7 @@ namespace FurlSharp
 
         public string NetLoc
         {
-            get { 
+            get {
                 var sb = new StringBuilder();
                 if (Username.IsNotNullOrWhiteSpace() && Password.IsNotNullOrWhiteSpace())
                     sb.AppendFormat("{0}:{1}@", Username, Password);
@@ -331,7 +323,7 @@ namespace FurlSharp
         public FurlPath Path
         {
             get { return _path; }
-            set { _path = value; 
+            set { _path = value;
                 Path.UseNetloc(NetLoc);
             }
         }
@@ -372,7 +364,7 @@ namespace FurlSharp
 
         public Furl Join(string newPath)
         {
-            var newUrl = Parse(newPath);
+            var newUrl = new Furl(newPath);
             if (newUrl.NetLoc.IsNotNullOrWhiteSpace())
             {
                 return newUrl;
@@ -393,7 +385,7 @@ namespace FurlSharp
                 }
 
                 var newSegments = newUrl.Path.Segments;
-                while (Path.Segments.Count > 0 
+                while (Path.Segments.Count > 0
                     && newSegments.FirstOrDefault() == "..")
                 {
                     Path.Segments.RemoveLast();

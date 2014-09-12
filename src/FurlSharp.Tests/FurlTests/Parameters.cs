@@ -1,5 +1,4 @@
-﻿using FurlSharp;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace FurlSharp.Tests.FurlTests
 {

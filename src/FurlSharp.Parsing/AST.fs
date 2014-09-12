@@ -18,6 +18,6 @@ type Url = Url of Scheme option * Credentials option * Host option * Port option
 type OptionalNamespace = OptionalNamespace of string option
 
 type OptionalComment = OptionalComment of string option
-type Route = Route of HttpMethod * Path * OptionalComment 
+type Route = Route of HttpMethod * Path * OptionalComment
 
 type RouteMap = RouteMap of OptionalNamespace * Route list

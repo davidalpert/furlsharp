@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FurlSharp.Internal;
-using FurlSharp;
 
 namespace FurlSharp
 {
     /// <summary>
-    /// <see type="OMDict"/> is a .NET implementation of a python-based 
+    /// <see type="OMDict"/> is a .NET implementation of a python-based
     /// Ordered Multivalue Dictionary (https://github.com/gruns/orderedmultidict).
-    /// 
-    /// A Multivalue Dictionary behaves like a Dictionary but can store 
+    ///
+    /// A Multivalue Dictionary behaves like a Dictionary but can store
     /// multiple values for each key.
-    /// 
+    ///
     /// An Ordered Multivalue Dictionary retains the order of insertions and deletions.
     /// </summary>
     /// <remarks>
@@ -21,7 +20,7 @@ namespace FurlSharp
     /// values of type <see cref="String"/>.
     /// </remarks>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class OMDict 
+    public class OMDict
     {
         // Provides a serialized view of the dictionary's contents for display in the debugger
         private string DebuggerDisplay
@@ -94,7 +93,7 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// Returns the highest index in use internally 
+        /// Returns the highest index in use internally
         /// by the dictionary.  Use this to ensure that
         /// added items are given an index that sorts
         /// them sequentially higher than the existing
@@ -110,10 +109,10 @@ namespace FurlSharp
 
         /// <summary>
         /// Provides key-based indexing into the stored values.
-        /// 
-        /// If <paramref name="key"/> has multiple values, 
+        ///
+        /// If <paramref name="key"/> has multiple values,
         /// only the first value is returned.
-        /// 
+        ///
         /// If <paramref name="key"/> has multiple values,
         /// they will all be deleted and replaced with
         /// <code>value</code>.
@@ -125,7 +124,7 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// Provides zero-based indexing into the ordered 
+        /// Provides zero-based indexing into the ordered
         /// set of <see cref="KeyValuePair{string,string}"/>
         /// pairs.
         /// </summary>
@@ -135,9 +134,9 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// Returns an ordered set of <see cref="KeyValuePair{string,string}"/>s 
+        /// Returns an ordered set of <see cref="KeyValuePair{string,string}"/>s
         /// representing the first value for each key stored in the dictionary.
-        /// 
+        ///
         /// If a <paramref name="key"/> is provided, all the items for that key
         /// are returned.
         /// </summary>
@@ -149,9 +148,9 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// Returns an ordered set of <see cref="KeyValuePair{string,string}"/>s 
+        /// Returns an ordered set of <see cref="KeyValuePair{string,string}"/>s
         /// representing all the values in the dictionary, sorted in sequence.
-        /// 
+        ///
         /// If a <paramref name="key"/> is provided, all the items for that key
         /// are returned.
         /// </summary>
@@ -185,8 +184,8 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// Gets the value associated with a key. If key has multiple values, 
-        /// only the first value is returned.  If the is not present in the 
+        /// Gets the value associated with a key. If key has multiple values,
+        /// only the first value is returned.  If the is not present in the
         /// dictionary, the <paramref name="defaultValue"/> is returned instead.
         /// </summary>
         public string Get(string key, string defaultValue)
@@ -195,8 +194,8 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// GetList is like <see cref="Get"/> except that it returns the 
-        /// list of values associated with each key.  If the key is not present 
+        /// GetList is like <see cref="Get(string)"/> except that it returns the
+        /// list of values associated with each key.  If the key is not present
         /// in the dictionary, the given <paramref name="defaultValues"/> are
         /// returned.
         /// </summary>
@@ -230,8 +229,8 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// SetList sets a list of values for key and is chainable.  If values 
-        /// already existed for the given key, they are replaced with the 
+        /// SetList sets a list of values for key and is chainable.  If values
+        /// already existed for the given key, they are replaced with the
         /// given <paramref name="values"/>.
         /// </summary>
         /// <returns>The <see cref="OMDict"/> instance to support method chaining.</returns>
@@ -240,12 +239,12 @@ namespace FurlSharp
             var pairs = values.Select(v => new KeyValuePair<string, string>(key, v));
 
             UpdateAll(pairs, true);
-           
+
             return this;
         }
 
         /// <summary>
-        /// If key is in the dictionary, return its value. If not, insert key with a 
+        /// If key is in the dictionary, return its value. If not, insert key with a
         /// value of default and return default. Default defaults to null.
         /// </summary>
         public string SetDefault(string key, string value = null)
@@ -263,7 +262,7 @@ namespace FurlSharp
         }
 
         /// <summary>
-        /// SetDefaultList is like <see cref="SetDefault"/> except a 
+        /// SetDefaultList is like <see cref="SetDefault"/> except a
         /// list of <paramref name="values"/> is adopted.
         /// </summary>
         public IEnumerable<string> SetDefaultList(string key, params string[] values)
@@ -327,13 +326,13 @@ namespace FurlSharp
         /// returning the first value associated with key.  If multiple
         /// values are associated with key, only the first value is returned,
         /// but all values are removed.
-        /// 
+        ///
         /// If key has no values, <paramref name="defaultValue"/> is returned
         /// instead.
         /// </summary>
         public string Pop(string key, string defaultValue = null)
         {
-            if (_items.ContainsKey(key) == false && defaultValue == null) 
+            if (_items.ContainsKey(key) == false && defaultValue == null)
                 throw new InvalidOperationException("Must provide a defaultValue when key is not present in the dictionary.");
 
             var value = Get(key, defaultValue);
@@ -352,7 +351,7 @@ namespace FurlSharp
         /// <returns></returns>
         public IEnumerable<string> PopList(string key, params string[] defaultValues)
         {
-            if (_items.ContainsKey(key) == false && defaultValues.Length == 0) 
+            if (_items.ContainsKey(key) == false && defaultValues.Length == 0)
                 throw new InvalidOperationException("Must provide a defaultValue when key is not present in the dictionary.");
 
             var values = GetList(key, defaultValues)
@@ -365,14 +364,14 @@ namespace FurlSharp
 
         /// <summary>
         /// Pops a the last sequential value for a given key out of the dictionary.
-        /// 
+        ///
         /// If the optional parameter <paramref name="last"/> is set to false, this
         /// method pops the first sequential value for a given key.
-        /// 
+        ///
         /// If the given key has no values, <paramref name="defaultValue"/> is
         /// returned instead.
-        /// 
-        /// If <paramref name="defaultValue"/> is provided, and it exists for the 
+        ///
+        /// If <paramref name="defaultValue"/> is provided, and it exists for the
         /// given key, then that is the value that is popped.
         /// </summary>
         public string PopValue(string key, string defaultValue = null, bool last = true)
@@ -393,7 +392,8 @@ namespace FurlSharp
                 list.Remove(itemToPop.Key);
                 return itemToPop.Value;
             }
-            else if (list.Values.Any())
+
+            if (list.Values.Any())
             {
                 var lastItem = last ? list.Last() : list.First();
                 list.Remove(lastItem.Key);
@@ -416,7 +416,7 @@ namespace FurlSharp
 
         /// <summary>
         /// Pops the last individual value, sequentially, from the dictionary.
-        /// 
+        ///
         /// If <paramref name="last"/> is <code>false</code>, pops the first
         /// individual value, sequentially.
         /// </summary>
@@ -432,10 +432,10 @@ namespace FurlSharp
         /// <summary>
         /// Pops and returns a key:valuelist item comprised of
         /// a key and that key's list of values.
-        /// 
+        ///
         /// If <paramref name="last"/> is true, <see cref="PopListItem"/>
         /// returns the list of items for the last sequential key.
-        /// 
+        ///
         /// If <paramref name="last"/> is false, <see cref="PopListItem"/>
         /// returns the list of items for the first sequential key.
         /// </summary>
@@ -460,7 +460,7 @@ namespace FurlSharp
         {
             if (_items.ContainsKey(key))
             {
-                _items[key].Clear();    
+                _items[key].Clear();
                 _items.Remove(key);
             }
         }

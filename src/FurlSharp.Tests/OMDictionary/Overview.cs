@@ -47,7 +47,7 @@ namespace FurlSharp.Tests.OMDictionary
 
             Assert.Inconclusive("Not actually implementing IDictionary<string,string> yet.");
             Assert.IsInstanceOf<IDictionary<string, string>>(omd);
-            
+
             dict.Add("1", "1");
             dict.Add("2", "2");
             dict["3"] = "3";
@@ -61,12 +61,12 @@ namespace FurlSharp.Tests.OMDictionary
         }
 
         /// <summary>
-        /// Many of <see cref="OMDict"/>'s methods contain the word <code>List</code> or 
+        /// Many of <see cref="OMDict"/>'s methods contain the word <code>List</code> or
         /// <code>All</code>.
-        /// 
-        /// <code>List</code> in a method name indicates that method interacts with a 
-        /// list of values instead of a single value. <code>All</code> in a method name 
-        /// indicates that method interacts with the ordered list of all items, 
+        ///
+        /// <code>List</code> in a method name indicates that method interacts with a
+        /// list of values instead of a single value. <code>All</code> in a method name
+        /// indicates that method interacts with the ordered list of all items,
         /// including multiple items with the same key.
         /// </summary>
         [Test]

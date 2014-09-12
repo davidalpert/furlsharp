@@ -39,7 +39,7 @@ let resultSatisfies predicate msg (p: Parser<_,_>) : Parser<_,_> =
           stream.BacktrackTo(state) // backtrack to beginning
           Reply(Error, error)
 
-let parseIf (p1:Parser<_,_>) msg (p2:Parser<_,_>) : Parser<_,_> = 
+let parseIf (p1:Parser<_,_>) msg (p2:Parser<_,_>) : Parser<_,_> =
     let error = messageError msg
     fun stream ->
         let state = stream.State
@@ -58,10 +58,10 @@ let pipe6 p1 p2 p3 p4 p5 p6 fn =
         p2 >>= fun b ->
         p3 >>= fun c ->
         p4 >>= fun d ->
-        p5 >>= fun e -> 
+        p5 >>= fun e ->
         p6 >>= fun f -> preturn (fn a b c d e f)
 
-let tuple6 p1 p2 p3 p4 p5 p6 = 
+let tuple6 p1 p2 p3 p4 p5 p6 =
      pipe6 p1 p2 p3 p4 p5 p6 (fun a b c d e f -> (a, b, c, d, e, f))
 
 let pipe7 p1 p2 p3 p4 p5 p6 p7 fn =
@@ -69,9 +69,9 @@ let pipe7 p1 p2 p3 p4 p5 p6 p7 fn =
         p2 >>= fun b ->
         p3 >>= fun c ->
         p4 >>= fun d ->
-        p5 >>= fun e -> 
-        p6 >>= fun f -> 
+        p5 >>= fun e ->
+        p6 >>= fun f ->
         p7 >>= fun g -> preturn (fn a b c d e f g)
 
-let tuple7 p1 p2 p3 p4 p5 p6 p7 = 
+let tuple7 p1 p2 p3 p4 p5 p6 p7 =
      pipe7 p1 p2 p3 p4 p5 p6 p7 (fun a b c d e f g -> (a, b, c, d, e, f, g))

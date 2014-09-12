@@ -1,17 +1,14 @@
 ﻿using NUnit.Framework;
 
-/// <summary>
-/// A port of the furl python library's API: https://github.com/gruns/furl/blob/master/API.md
-/// </summary>
 namespace FurlSharp.Tests.FurlTests
 {
     /// <summary>
     /// Given a url:
-    /// 
+    ///
     /// - scheme://username:password@host:port/path?query#fragment
-    /// 
+    ///
     /// Furl will parse that into:
-    /// 
+    ///
     /// - **scheme** is the scheme string (all lowercase) or None. None means no scheme. An empty string means a protocol relative URL, like //www.google.com.
     /// - **username** is the username string for authentication.
     /// - **password** is the password string for authentication with username.
@@ -21,6 +18,9 @@ namespace FurlSharp.Tests.FurlTests
     /// - **query** is a Query object comprised of query arguments.
     /// - **fragment** is a Fragment object comprised of a Path and Query object separated by an optional '?' separator.
     /// </summary>
+    /// <remarks>
+    /// A port of the furl python library's API: https://github.com/gruns/furl/blob/master/API.md
+    /// </remarks>
     [TestFixture]
     public class Basics
     {
@@ -30,7 +30,7 @@ namespace FurlSharp.Tests.FurlTests
         [Test]
         public void Furl_objects_let_you_access_and_modify_the_components_of_a_url()
         {
-            var f = Furl.Parse("http://user:pass@www.google.com:90/");
+            var f = new Furl("http://user:pass@www.google.com:90/");
 
             Assert.AreEqual("http", f.Scheme);
             Assert.AreEqual("user", f.Username);
@@ -48,7 +48,7 @@ namespace FurlSharp.Tests.FurlTests
         [Theory]
         public void Furl_infers_the_default_port_for_common_schemes(string url, int? expectedPort)
         {
-            var f = Furl.Parse(url);
+            var f = new Furl(url);
 
             Assert.AreEqual(expectedPort, f.Port);
         }
@@ -62,7 +62,7 @@ namespace FurlSharp.Tests.FurlTests
         [Theory]
         public void Netloc_is_the_string_combination_of_username_password_host_and_port(string url, string expectedNetloc)
         {
-            var f = Furl.Parse(url);
+            var f = new Furl(url);
 
             Assert.AreEqual(expectedNetloc, f.NetLoc);
         }

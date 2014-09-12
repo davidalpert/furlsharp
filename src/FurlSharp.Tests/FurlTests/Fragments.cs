@@ -41,7 +41,7 @@ namespace FurlSharp.Tests.FurlTests
             var f = new Furl("http://www.google.com/");
             f.Fragment.Path = "!";
             f.Fragment.Query.UpdateAll("a", "dict", "of", "args");
-            Assert.IsTrue(f.Fragment.HasSeparator, f.Fragment.ToString() + " should have a separator.");
+            Assert.IsTrue(f.Fragment.HasSeparator, f.Fragment + " should have a separator.");
             Assert.AreEqual("!?a=dict&of=args", f.Fragment.ToString());
 
             f.Fragment.HasSeparator = false;

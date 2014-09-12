@@ -52,7 +52,6 @@
     <Compile Include="AOP\UpdatePathNetlocOnExitAttribute.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Furl.cs" />
-    <Compile Include="Internal\ManifestResourceHelper.cs" />
     <Compile Include="Internal\TupleExtensions.cs" />
     <Compile Include="OMDict.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

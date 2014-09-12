@@ -1,13 +1,12 @@
 using System;
 using System.Reflection;
-using FurlSharp;
 
 namespace FurlSharp.AOP
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Assembly)]
     public class UpdatePathNetlocOnExitAttribute : Attribute
     {
-        private Furl _furl; 
+        private Furl _furl;
 
         public void Init(object instance, MethodBase method, object[] args)
         {
