@@ -1,6 +1,0 @@
-﻿
-namespace FurlStrong.Sample {
-
-<< Generated Code Goes Here >>
-
-}

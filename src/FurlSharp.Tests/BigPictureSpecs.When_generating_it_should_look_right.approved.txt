@@ -1,0 +1,6 @@
+﻿
+namespace FurlSharp.Sample {
+
+<< Generated Code Goes Here >>
+
+}
