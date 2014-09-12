@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using System.Web;
 using FurlSharp;
 using FurlSharp.AOP;
 using FurlSharp.Internal;
@@ -175,12 +174,12 @@ namespace FurlSharp
         {
             return raw == null 
                 ? null 
-                : HttpUtility.UrlEncode(raw).Replace("+", "%20");
+                       : Uri.EscapeDataString(raw);
         }
 
         public static string Decode(string encoded)
         {
-            return HttpUtility.UrlDecode(encoded);
+            return Uri.UnescapeDataString(encoded.Replace("+"," "));
         }
 
         public static IEnumerable<string> Decode(IEnumerable<string> pathParts)

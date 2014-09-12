@@ -47,7 +47,7 @@ namespace FurlSharp.Tests.FurlTests
             Assert.AreEqual("http://www.google.com/o/hi/there/with%20some%20encoding/", f.ToString());
 
             f.Path.Segments = FurlPath.FromSegments("segments", "are", "maintained", "decoded", @"^`<>[]""#/?");
-            Assert.AreEqual("/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F".ToLowerInvariant(), f.Path.ToString());
+            Assert.AreEqual("/segments/are/maintained/decoded/%5E%60%3C%3E%5B%5D%22%23%2F%3F", f.Path.ToString());
         }
 
         [Test]

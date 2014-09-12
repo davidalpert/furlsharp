@@ -75,10 +75,10 @@ namespace FurlSharp.Tests.FurlTests
             f = new FurlSharp.Furl();
 
             f.Path = new[] {"path segments are", "decoded", "<>[]\"#"};
-            Assert.AreEqual("/path%20segments%20are/decoded/%3C%3E%5B%5D%22%23".ToLowerInvariant(), f.Path.ToString());
+            Assert.AreEqual("/path%20segments%20are/decoded/%3C%3E%5B%5D%22%23", f.Path.ToString());
 
             f.Query.UpdateAll("query parameters", "and values", "are", "decoded, too");
-            Assert.AreEqual("query%20parameters=and%20values&are=decoded%2c%20too", f.Query.ToString());
+            Assert.AreEqual("query%20parameters=and%20values&are=decoded%2C%20too", f.Query.ToString());
 
             f.Fragment.Path.Segments = new[] {"decoded", "path segments"};
             f.Fragment.Query["and decoded"] = "query parameters and values";
